@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="898c7802-700d-45bb-88fd-f344a635253f" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/jpa/src/main/java/com/example/demo/userapi/dto/request/UserRequestSignUpDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/jpa/src/main/java/com/example/demo/userapi/dto/response/UserSignUpResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/jpa/src/main/java/com/example/demo/userapi/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jpa/src/main/java/com/example/demo/userapi/api/userController.java" beforeDir="false" afterPath="$PROJECT_DIR$/jpa/src/main/java/com/example/demo/userapi/api/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jpa/src/main/java/com/example/demo/userapi/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/jpa/src/main/java/com/example/demo/userapi/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jpa/src/main/java/com/example/demo/userapi/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/jpa/src/main/java/com/example/demo/userapi/service/UserService.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2ZFptZv1ZeKou0M63YNBJABq4BT" />
+  <component name="ProjectViewState">
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/MyWork/final-project/jpa"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="애플리케이션 수준" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="898c7802-700d-45bb-88fd-f344a635253f" name="변경" comment="" />
+      <created>1702027896880</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1702027896880</updated>
+    </task>
+    <servers />
+  </component>
+</project>
