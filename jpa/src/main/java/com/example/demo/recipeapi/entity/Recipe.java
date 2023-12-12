@@ -17,13 +17,16 @@ public class Recipe {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String recipeId;
+    private int recipeId;
 
-    private String recipeCategory;
+    private String name;
+
+    private String way; // 조리방법
+
+    private String type; // 요리종류
 
     private String imgSrc;
 
-    private String name;
 
 
 
