@@ -28,3 +28,6 @@ kakao:
   client_id:
   redirect_url:
   client_secret:
+
+#API KEYS
+spring.profiles.include: API-KEY
