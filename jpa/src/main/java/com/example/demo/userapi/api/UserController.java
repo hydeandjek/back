@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
-@CrossOrigin
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8181"})
 public class UserController {
 
     private final UserService userService;
@@ -96,8 +96,9 @@ public class UserController {
 
 
     @GetMapping("/naverLogin")
-    public ResponseEntity<?> naverLogin(String code){
+    public ResponseEntity<?> naverLogin(@RequestParam("code") String code){
         log.info("/api/auth/kakakoLogin - GET! - code: {}", code);
+        log.info("네이버로그인 핸들러 들어옴");
         LoginResponseDTO responseDTO = userService.naverService(code);
 
         return ResponseEntity.ok().body(responseDTO);
