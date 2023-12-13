@@ -22,7 +22,7 @@ springdoc:
     path: /myapi.html
 
 jwt:
-  secret: R1YXckCppGjhrO+fMQyW0usyjE6qkqIccIt2wubPxK+qqe/Zd5C5ho4VM3yH1wiRqHE5dlmleJo42uyEjKOzRg==
+  secret: SldSLcNQAHrAB56UGVyjekmLuojkOZbYxpKMNdP8jLTmX6iKsFS/lJyjaaiRjc1IG0nsVBsnwmvoHFA2/zxF8g==
 
 kakao:
   client_id:

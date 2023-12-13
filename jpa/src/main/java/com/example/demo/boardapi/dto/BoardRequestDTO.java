@@ -1,6 +1,7 @@
 package com.example.demo.boardapi.dto;
 
 import com.example.demo.boardapi.entity.Board;
+import com.example.demo.userapi.entity.User;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
@@ -27,7 +28,9 @@ public class BoardRequestDTO {
     // dto를 엔티티로 변환
     public Board toEntity(User user){
         return Board.builder()
-                .boardId(this.title)
+                .category(this.category)
+                .title(this.title)
+                .content(this.content)
                 .user(user)
                 .build();
     }
