@@ -28,3 +28,8 @@ kakao:
   client_id: 9db07cda7ecacfc0364110ae147635d7
   redirect_url: http://localhost:3000/oauth/redirected/kakao
   client_secret: ex9wRuSwO92y7V1pMZCgnD13nohvjyKY
+
+naver:
+  client_id: W7Mq7kXYF3dBqzpj2kxG
+  redirect_url: http://localhost:3000/api/auth/naverLogin
+  client_secret: aYRsxAmXSC

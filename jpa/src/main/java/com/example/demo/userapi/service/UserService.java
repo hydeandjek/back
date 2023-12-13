@@ -23,6 +23,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Map;
 
 @Service
@@ -42,6 +44,16 @@ public class UserService {
 
     @Value("${kakao.client_secret}")
     private String KAKAO_CLIENT_SECRET;
+
+
+    @Value("${naver.client_id}")
+    private String NAVER_CLIENT_ID;
+
+
+    @Value("${naver.client_secret}")
+    private String NAVER_CLIENT_SECRET;
+
+
 
 
     public UserSignUpResponseDTO create(final UserRequestSignUpDTO dto, final String uploadedFilePath) {
@@ -101,6 +113,7 @@ public class UserService {
 
         // 토큰을 통해 사용자 정보 가져오기
         KakaoUserDTO dto = getKakaoUserInfo((String) responseData.get("access_token"));
+        log.info("kakao dto   ", dto );
 
         // 일회성 로그인으로 처리 -> dto를 바로 화면단으로 리턴
         // 회원가입 처리 -> 이메일 중복 검사 진행 -> 자체 jwt를 생성해서 토큰을 화면단에 리턴.
@@ -109,7 +122,9 @@ public class UserService {
         if(!isDuplicate(dto.getKakaoAccount().getEmail())){
             // 이메일이 중복되지 않았다 -> 이전에 로그인 한 적이 없음 -> DB에 데이터 세팅
             User saved = userRepository.save(dto.toEntity((String) responseData.get("access_token")));
+            log.info("kakao Service   ",saved );
             userRepository.save(saved);
+
         }
         // 이메일이 중복됐다? -> 이전에 로그인 한 적이 있다. -> DB에 데이터를 또 넣을 필요는 없다.
         // 조회한다
@@ -186,7 +201,7 @@ public class UserService {
 
         // 응답 데이터에서 필요한 정보를 가져오기
         Map<String, Object> responseData = (Map<String, Object>)responseEntity.getBody();
-        log.info("토큰 요청 응답 데이터: {}", responseData);
+        log.info("토큰 요청 응답 데이터: sssss{}", responseData);
 
         // 여러가지 데이터 중 access_token이라는 이름의 데이터를 리턴 (Object를 String으로 형 변환해서 리턴)
         return responseData;
@@ -247,11 +262,26 @@ public class UserService {
 
     }
 
+    public String generateState()
+    {
+        SecureRandom random = new SecureRandom();
+        return new BigInteger(130, random).toString(32);
+    }
+
+
+
+
 
     public LoginResponseDTO naverService(String code) {
 
+        // 상태 토큰으로 사용할 랜덤 문자열 생성
+        String state = generateState();
+//        // 세션 또는 별도의 저장 공간에 상태 토큰을 저장
+//        request.session().attribute("state", state);
+//        return state;
+
         // 인가코드를 통해 토큰 발급받기
-        Map<String, Object> responseData = getNaverAccessToken(code);
+        Map<String, Object> responseData = getNaverAccessToken(code, state);
         log.info("token: {}", responseData.get("access_token"));
 
         // 토큰을 통해 사용자 정보 가져오기
@@ -261,14 +291,18 @@ public class UserService {
         // 회원가입 처리 -> 이메일 중복 검사 진행 -> 자체 jwt를 생성해서 토큰을 화면단에 리턴.
         // -> 화면단에서는 적절한 url을 선택하여 redirect를 진행.
 
-        if(!isDuplicate(dto.getNaverAccount().getEmail())){
+        log.info(dto.getResponse().getEmail());
+
+
+
+        if(!isDuplicate(dto.getResponse().getEmail())){
             // 이메일이 중복되지 않았다 -> 이전에 로그인 한 적이 없음 -> DB에 데이터 세팅
             User saved = userRepository.save(dto.toEntity((String) responseData.get("access_token")));
             userRepository.save(saved);
         }
         // 이메일이 중복됐다? -> 이전에 로그인 한 적이 있다. -> DB에 데이터를 또 넣을 필요는 없다.
         // 조회한다
-        User foundUser = userRepository.findByEmail(dto.getNaverAccount().getEmail())
+        User foundUser = userRepository.findByEmail(dto.getResponse().getEmail())
                 .orElseThrow();
 
 
@@ -288,12 +322,12 @@ public class UserService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
         // 요청 보내기 Spring에서 지원하는 객체로 간편하게 Rest 방식 API를 호출할 수 있는 Spring 내장 클래스
         RestTemplate template = new RestTemplate();
-        ResponseEntity<NaverUserDTO> responseEntity
-                = template.exchange(requestUri, HttpMethod.GET, new HttpEntity<>(headers), NaverUserDTO.class);
+        ResponseEntity<NaverUserDTO> responseEntity =
+                template.exchange(requestUri, HttpMethod.GET, new HttpEntity<>(headers), NaverUserDTO.class);
 
         // 응답 바디 읽기
         NaverUserDTO responseData = responseEntity.getBody();
@@ -303,7 +337,7 @@ public class UserService {
 
     }
 
-    private Map<String, Object> getNaverAccessToken(String code) {
+    private Map<String, Object> getNaverAccessToken(String code, String state) {
         String requestUri = "https://nid.naver.com/oauth2.0/token";
 
         // 요청 헤더 설정
@@ -313,10 +347,10 @@ public class UserService {
         // 요청 바디(파라미터) 설정
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code"); // 발급
-        params.add("client_id", KAKAO_CLIENT_ID); // 애플리케이션 등록 시 발급받은 Client ID 값
-        params.add("client_secret", KAKAO_REDIRECT_URI); // 애플리케이션 등록 시 발급받은 Client secret 값
+        params.add("client_id", NAVER_CLIENT_ID); // 애플리케이션 등록 시 발급받은 Client ID 값
+        params.add("client_secret", NAVER_CLIENT_SECRET); // 애플리케이션 등록 시 발급받은 Client secret 값
         params.add("code", code); // 로그인 인증 요청 API 호출에 성공하고 리턴받은 인증코드값 (authorization code)
-        params.add("state", KAKAO_CLIENT_SECRET); // 사이트 간 요청 위조(cross-site request forgery) 공격을 방지하기 위해
+        params.add("state", state); // 사이트 간 요청 위조(cross-site request forgery) 공격을 방지하기 위해
         // 애플리케이션에서 생성한 상태 토큰값으로 URL 인코딩을 적용한 값을 사용
 
         // 헤더와 바디 정보를 합치기 위해 HttpEntity 객체 생성
