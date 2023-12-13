@@ -1,15 +1,20 @@
 package com.example.demo.boardapi.api;
 
+import com.example.demo.auth.TokenUserInfo;
 import com.example.demo.boardapi.dto.BoardDetailResponseDTO;
+import com.example.demo.boardapi.dto.BoardRequestDTO;
 import com.example.demo.boardapi.dto.BoardResponseDTO;
 import com.example.demo.boardapi.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @Slf4j
@@ -41,11 +46,23 @@ public class BoardController {
 
     // 게시글 추가
     @PostMapping("/{category}")
-    public ResponseEntity<?> registerBoard(@PathVariable String category){
-        log.info("/api/onelife-board/{} POST - board Register Request", category);
-        boardService.registerBoard(category);
+    public String registerBoard(
+                                @AuthenticationPrincipal TokenUserInfo userInfo,
+                                @Validated @RequestBody BoardRequestDTO requestDTO,
+                                BindingResult result
+                                           ){
 
-        return ResponseEntity.ok().body();
+        log.info("/api/onelife-board/{} POST - board Register Request", requestDTO.getCategory());
+
+        if(result.hasErrors()) {
+            log.warn("DTO 검증 에러 발생: {}", result.getFieldError());
+            return Objects.requireNonNull(result.getFieldError()).getCode();
+        }
+        boardService.registerBoard(requestDTO, userInfo);
+
+        return "redirect:/{category}";
+
+
 
     }
 

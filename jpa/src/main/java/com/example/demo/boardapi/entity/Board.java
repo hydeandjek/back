@@ -1,5 +1,6 @@
 package com.example.demo.boardapi.entity;
 
+import com.example.demo.userapi.entity.User;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
@@ -26,10 +27,10 @@ public class Board {
     @Column(nullable = false)
     private String category;
 
-    @Column(nullable = false)
-    @GeneratedValue(generator = "system-uuid" ) // 값 지정
-    @GenericGenerator(name = "system-uuid", strategy = "uuid") // 커스텀한 값(uuid)
-    private String userId;
+//    @Column(nullable = false)
+//    @GeneratedValue(generator = "system-uuid" ) // 값 지정
+//    @GenericGenerator(name = "system-uuid", strategy = "uuid") // 커스텀한 값(uuid)
+//    private String userId;
 
     @Column(nullable = false, length = 30)
     private String title;
@@ -42,12 +43,9 @@ public class Board {
 
     private LocalDateTime updateDate;
 
-
-
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id")
-//    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
 
 }
