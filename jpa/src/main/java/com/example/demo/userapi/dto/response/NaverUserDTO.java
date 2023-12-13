@@ -12,39 +12,52 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 public class NaverUserDTO {
-    // 카카오가 주는 id
-    private long id;
-
-    @JsonProperty("connected_at")
-    private LocalDateTime connectedAt;
-
-    @JsonProperty("naver_account")
-    private NaverUserDTO.NaverAccount NaverAccount;
-
-    @Setter @Getter @ToString
-    public static class NaverAccount {
-
-        private String email;
-        private NaverUserDTO.NaverAccount.Profile profile;
-
-        @Getter @Setter @ToString
-        public static class Profile {
-            private String nickname;
-
-            @JsonProperty("profile_image_url")
-            private String profileImageUrl;
-        }
 
 
+    private String resultcode;
+    private String message;
 
-    }
+    private Response response;
+
+//    @Setter @Getter @ToString
+//    public static class NaverAccount {
+//
+//        private String email;
+//        private NaverUserDTO.NaverAccount.Profile profile;
+//
+//        @Getter @Setter @ToString
+//        public static class Profile {
+//            private String nickname;
+//
+//            @JsonProperty("profile_image_url")
+//            private String profileImageUrl;
+//        }
+//
+//
+//
+//    }
 
     public User toEntity(String accessToken){
         return User.builder()
-                .email(this.NaverAccount.email)
-                .userName(this.NaverAccount.profile.nickname)
+                .email(this.response.email)
+                .userName(this.response.nickname)
                 .password("password!")
                 .accessToken(accessToken)
                 .build();
     }
+
+
+
+    // Getters and Setters
+    @Setter @Getter @ToString
+    public static class Response {
+        private String email;
+        private String nickname;
+        private String profile_image;
+        private String age;
+        private String gender;
+        private String id;
+        private String name;
+        private String birthday;
+}
 }

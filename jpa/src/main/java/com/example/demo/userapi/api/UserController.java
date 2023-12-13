@@ -97,7 +97,7 @@ public class UserController {
 
     @GetMapping("/naverLogin")
     public ResponseEntity<?> naverLogin(@RequestParam("code") String code){
-        log.info("/api/auth/kakakoLogin - GET! - code: {}", code);
+        log.info("/api/auth/naverLogin - GET! - code: {}", code);
         log.info("네이버로그인 핸들러 들어옴");
         LoginResponseDTO responseDTO = userService.naverService(code);
 
