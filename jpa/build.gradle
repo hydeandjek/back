@@ -75,7 +75,7 @@ dependencies {
 //제작합니다.
 //밑에 작성된 내용은 QClass의 생성 디렉토리 지정 및 프로젝트 build 시 컴파일 명령문 등을
 //세팅해 놓은 코드입니다.
-def querydslDir = "$buildDir/generated/querydsl"
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
 querydsl {
 	jpa = true
 	querydslSourcesDir = querydslDir
