@@ -36,7 +36,7 @@ public class BoardService {
                                         .title(board.getTitle())
                                         .category(category)
                                         .regDate(board.getRegDate())
-                                        .userId(board.getUser().getUserId())
+                                        .userId(board.getUser().getId())
                                         .build();
             dtoList.add(dto);
         }
@@ -52,7 +52,7 @@ public class BoardService {
                 .content(board.getContent())
                 .category(board.getCategory())
                 .regDate(board.getRegDate())
-                .userId(board.getUser().getUserId())
+                .userId(board.getUser().getId())
                 .build();
 
         return dto;
