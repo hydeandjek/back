@@ -15,6 +15,7 @@ import com.example.demo.auth.TokenUserInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -61,9 +62,10 @@ public class BoardService {
     public void registerBoard(
             final BoardRequestDTO requestDTO,
             final TokenUserInfo userInfo
-            ) {
+            ) throws RuntimeException {
         // 게시글 등록은 유저만 할 수 있으므로 유저 엔티티 조회해 전달
-        User user = getUser(userInfo.getUserId());
+        User user = Objects.requireNonNull(getUser(userInfo.getUserId()));
+
         // 등록
         boardRepository.save(requestDTO.toEntity(user));
         log.info("할 일 저장 완료! 제목: {}", requestDTO.getTitle());

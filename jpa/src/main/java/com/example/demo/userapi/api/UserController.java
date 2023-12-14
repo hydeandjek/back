@@ -71,7 +71,7 @@ public class UserController {
     public ResponseEntity<?> signIn(
             @Validated @RequestBody LoginRequestDTO dto
     ) {
-        try {
+        try {;
             LoginResponseDTO responseDTO
                     = userService.authenticate(dto);
 

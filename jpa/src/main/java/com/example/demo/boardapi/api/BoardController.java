@@ -58,10 +58,15 @@ public class BoardController {
             log.warn("DTO 검증 에러 발생: {}", result.getFieldError());
             return Objects.requireNonNull(result.getFieldError()).getCode();
         }
-        boardService.registerBoard(requestDTO, userInfo);
 
-        return "redirect:/{category}";
+        try {
+            boardService.registerBoard(requestDTO, userInfo);
 
+            return "redirect:/{category}";
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
 
 
     }

@@ -79,6 +79,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 
     private String parseBearerToken(HttpServletRequest request) {
+
         // 토큰 꺼내기
         String bearerToken = request.getHeader("Authorization");
 
