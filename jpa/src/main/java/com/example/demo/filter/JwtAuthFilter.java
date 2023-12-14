@@ -50,7 +50,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 AbstractAuthenticationToken auth
                         = new UsernamePasswordAuthenticationToken(
                         userInfo, // 컨트롤러에서 활용할 유저 정보
-                        null // 인증된 사용자의 비밀번호 - 보통 null값
+                        null, // 인증된 사용자의 비밀번호 - 보통 null값
+                        null
                 ); // 생성자 호출!
 
                 // 인증 완료 처리 시 클라이언트의 요청 정보 세팅

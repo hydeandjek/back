@@ -229,21 +229,27 @@ public class UserService {
         User foundUser = userRepository.findById(userInfo.getUserId())
                 .orElseThrow(); // 사용자 정보 들어있음
 
-        String accesstoken = foundUser.getSnsLogin().getAccessToken();
-        if(accesstoken != null){
-            String reqUri = "https://kapi.kakao.com/v1/user/logout";
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", "Bearer " + accesstoken);
+
+        SnsLogin snsLogin = foundUser.getSnsLogin();
+        if (snsLogin != null) {
+            String accesstoken = snsLogin.getAccessToken();
+            if (accesstoken != null) {
+                if (snsLogin.getLoginType().equals(LoginType.KAKAO)) {
+                    String reqUri = "https://kapi.kakao.com/v1/user/logout";
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add("Authorization", "Bearer " + accesstoken);
 
 
-            Map<String, Object> naverOut = getNaverOut(accesstoken);
+                    Map<String, Object> naverOut = getNaverOut(accesstoken);
 
 
-            RestTemplate template = new RestTemplate();
-            ResponseEntity<String> responseData =
-                    template.exchange(reqUri, HttpMethod.POST, new HttpEntity<>(headers), String.class);
-            return responseData.getBody();
+                    RestTemplate template = new RestTemplate();
+                    ResponseEntity<String> responseData =
+                            template.exchange(reqUri, HttpMethod.POST, new HttpEntity<>(headers), String.class);
+                    return responseData.getBody();
+                }
 
+            }
         }
         return null;
     }
