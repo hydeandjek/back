@@ -13,20 +13,21 @@ import javax.persistence.*;
 @Builder
 
 @Entity
-@Table(name = "tbl_sbnusers")
+@Table(name = "tbl_sns_users")
 public class SnsLogin {
 
     @Id
-    @Column(name = "user_id")
+    @Column(name = "sns_id")
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String id;
 
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    @Column(unique = true)
+    @Setter
     private String accessToken;
 
 }

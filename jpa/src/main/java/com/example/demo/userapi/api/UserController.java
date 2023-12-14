@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api/user")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8181"})
 public class UserController {
 
@@ -44,7 +43,7 @@ public class UserController {
     public ResponseEntity<?> signup(
             @Validated @RequestBody UserRequestSignUpDTO dto, BindingResult result
             ){
-        log.info("/api/auth POST! - {}", dto);
+        log.info("/api/user POST! - {}", dto);
 
 
         if (result.hasErrors()){
@@ -88,7 +87,7 @@ public class UserController {
 
     @GetMapping("/kakaoLogin")
     public ResponseEntity<?> kakaoLogin(String code){
-        log.info("/api/auth/kakakoLogin - GET! - code: {}", code);
+        log.info("/api/user/kakakoLogin - GET! - code: {}", code);
         LoginResponseDTO responseDTO = userService.kakaoService(code);
 
         return ResponseEntity.ok().body(responseDTO);
@@ -97,7 +96,7 @@ public class UserController {
 
     @GetMapping("/naverLogin")
     public ResponseEntity<?> naverLogin(@RequestParam("code") String code){
-        log.info("/api/auth/naverLogin - GET! - code: {}", code);
+        log.info("/api/user/naverLogin - GET! - code: {}", code);
         log.info("네이버로그인 핸들러 들어옴");
         LoginResponseDTO responseDTO = userService.naverService(code);
 
@@ -107,7 +106,7 @@ public class UserController {
     // 로그아웃 처리 카카오와 일반 회원
     @GetMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal TokenUserInfo userInfo){
-        log.info("/api/auth/logout - GET!: {}", userInfo.getEmail());
+        log.info("/api/user/logout - GET!: {}", userInfo.getEmail());
 
         String result = userService.logout(userInfo); // 카카오 로그인 = 아이디 || 원래 회원 = null
 
