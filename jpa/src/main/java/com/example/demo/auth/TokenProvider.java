@@ -72,7 +72,7 @@ public class TokenProvider {
                 .setIssuer("Board운영자") // iss: 발급자 정보
                 .setIssuedAt(new Date()) // iat: 발급 시간
                 .setExpiration(expiry) // exp: 만료 시간
-                .setSubject(userEntity.getUserId()) // sub: 토큰을 식별할 수 있는 주요 데이터
+                .setSubject(userEntity.getId()) // sub: 토큰을 식별할 수 있는 주요 데이터
                 .compact(); // String 리턴.
 
 
