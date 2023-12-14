@@ -41,7 +41,7 @@ public class TokenProvider {
 
         // 토큰 만료 시간 생성
         Date expiry = Date.from(
-                Instant.now().plus(15, ChronoUnit.MINUTES)
+                Instant.now().plus(6, ChronoUnit.HOURS)
         );
 
         // 토큰 생성
