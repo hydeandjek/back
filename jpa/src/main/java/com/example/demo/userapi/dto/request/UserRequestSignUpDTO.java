@@ -25,7 +25,6 @@ public class UserRequestSignUpDTO {
     @Size(min = 2, max = 5)
     private String userName;
 
-    @NotBlank
     private String address;
 
 
