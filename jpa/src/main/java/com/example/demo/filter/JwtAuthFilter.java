@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.jsonwebtoken.Jwts;
 
 // 클라이언트가 전송한 토큰을 검사하는 필터
@@ -44,14 +48,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 TokenUserInfo userInfo // 토큰 안의 유저 정보 얻음
                         = tokenProvider.validateAndGetTokenUserInfo(token);
 
+                // 인가 정보 리스트
+                List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
+                authorityList.add(new SimpleGrantedAuthority("ROLE_" + userInfo.getRole().toString()));
+
                 // 인증 완료 처리
-                // (스프링 시큐리티에게 인증정보를 전달해서 전역적으로 어플리케이션에서
-                // 인증 정보를 활용할 수 있게 설정)
                 AbstractAuthenticationToken auth
                         = new UsernamePasswordAuthenticationToken(
                         userInfo, // 컨트롤러에서 활용할 유저 정보
                         null, // 인증된 사용자의 비밀번호 - 보통 null값
-                        null
+                        authorityList // 인가 정보 (권한 정보)
                 ); // 생성자 호출!
 
                 // 인증 완료 처리 시 클라이언트의 요청 정보 세팅
@@ -66,7 +72,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         } catch (ExpiredJwtException e){
             log.warn("토큰의 기한이 만료되었습니다.");
-            throw new JwtException("토큰 기한 만료!"); // 앞단에 끼워 놓은 필터에 전달 된다.
+            throw new JwtException("토큰 기한 만료!");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,9 +94,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
         return null;
-
-
     }
-
 
 }
