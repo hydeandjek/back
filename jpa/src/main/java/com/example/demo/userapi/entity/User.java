@@ -4,7 +4,6 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.management.relation.Role;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -40,6 +39,10 @@ public class User {
 
     @OneToOne(cascade = CascadeType.ALL)
     private SnsLogin snsLogin;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Role role = Role.USER;
 
     public void setSnsLogin(SnsLogin snsLogin) {this.snsLogin = snsLogin;}
 }
