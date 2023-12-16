@@ -1,7 +1,7 @@
 package com.example.demo.config;
 
 import com.example.demo.filter.JwtAuthFilter;
-import com.example.demo.filter.JwtExcetionFilter;
+import com.example.demo.filter.JwtExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,7 +17,7 @@ import org.springframework.web.filter.CorsFilter;
 public class WebSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-    private final JwtExcetionFilter jwtExcetionFilter;
+    private final JwtExceptionFilter jwtExcetionFilter;
 
     //비밀번호 암호화를 위한 빈
     @Bean
