@@ -1,5 +1,6 @@
 package com.example.demo.auth;
 
+import com.example.demo.userapi.entity.Role;
 import com.example.demo.userapi.entity.User;
 import io.jsonwebtoken.*;
 
@@ -60,6 +61,7 @@ public class TokenProvider {
         // 추가 클레임 정의
         Map<String, String> claims = new HashMap<>();
         claims.put("email", userEntity.getEmail());
+        claims.put("role", String.valueOf(userEntity.getRole()));
 
 
         return Jwts.builder()
@@ -70,7 +72,7 @@ public class TokenProvider {
                 )
                 // token payload에 들어갈 클레임 설정.
                 .setClaims(claims) // 추가 클레임은 먼저 설정해야 함.
-                .setIssuer("Board운영자") // iss: 발급자 정보
+                .setIssuer("1nterface운영자") // iss: 발급자 정보
                 .setIssuedAt(new Date()) // iat: 발급 시간
                 .setExpiration(expiry) // exp: 만료 시간
                 .setSubject(userEntity.getId()) // sub: 토큰을 식별할 수 있는 주요 데이터
@@ -99,6 +101,7 @@ public class TokenProvider {
         return TokenUserInfo.builder()
                 .userId(claims.getSubject())
                 .email(claims.get("email", String.class))
+                .role(Role.valueOf(claims.get("role", String.class)))
                 .build(); // claims 중에 쓰고 싶은 것만 뽑아 TokenUserInfo 객체로 포장
 
     }

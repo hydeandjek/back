@@ -39,11 +39,11 @@ public class UserController {
 
 
     //회원가입 요청 처리
-    @PostMapping
+    @PostMapping("/join")
     public ResponseEntity<?> signup(
             @Validated @RequestBody UserRequestSignUpDTO dto, BindingResult result
             ){
-        log.info("/api/user POST! - {}", dto);
+        log.info("/api/user/join POST! - {}", dto);
 
 
         if (result.hasErrors()){
@@ -67,11 +67,13 @@ public class UserController {
     }
 
     // 로그인 요청 처리
-    @PostMapping("/signin")
+    @PostMapping
     public ResponseEntity<?> signIn(
             @Validated @RequestBody LoginRequestDTO dto
     ) {
-        try {;
+        log.info("/api/user: GET");
+
+        try {
             LoginResponseDTO responseDTO
                     = userService.authenticate(dto);
 
