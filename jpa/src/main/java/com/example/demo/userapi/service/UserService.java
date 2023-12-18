@@ -226,6 +226,7 @@ public class UserService {
 
 
     public String logout(TokenUserInfo userInfo) {
+        log.info("서비스가 작동한다.로그아웃할 유저는 {}", userInfo);
         User foundUser = userRepository.findById(userInfo.getUserId())
                 .orElseThrow(); // 사용자 정보 들어있음
 

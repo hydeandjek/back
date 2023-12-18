@@ -20,10 +20,10 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
             @Param("category") String category,
             @Param("boardId") int boardId);
 
-//    // 특정 회원이 작성한 글 목록 리턴
-//    // SELECT * FROM tbl_todo WHERE t.user =: user_id = ?
-//    @Query("SELECT b FROM Board b WHERE b.user = :user")
-//    List<Board> findAllByUser(@Param("user") User user);
+    // 특정 회원이 작성한 글 목록 리턴
+    // SELECT * FROM board b WHERE b.user =: user_id = ?
+    @Query("SELECT b FROM Board b WHERE b.user = :user")
+    List<Board> findAllByUser(@Param("user") User user);
 //
 //    // 회원이 작성한 글의 개수를 리턴
 //    @Query("SELECT COUNT(*) FROM Board b WHERE b.user = :user")
