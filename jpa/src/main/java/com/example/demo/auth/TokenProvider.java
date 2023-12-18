@@ -3,6 +3,7 @@ package com.example.demo.auth;
 import com.example.demo.userapi.entity.Role;
 import com.example.demo.userapi.entity.User;
 import io.jsonwebtoken.*;
+
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;

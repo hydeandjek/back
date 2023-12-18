@@ -1,14 +1,17 @@
 package com.example.demo.boardapi.entity;
 
+import com.example.demo.boardapi.dto.BoardDetailResponseDTO;
 import com.example.demo.userapi.entity.User;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import javax.persistence.GenerationType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -41,11 +44,22 @@ public class Board {
     @CreationTimestamp
     private LocalDateTime regDate;
 
+    @UpdateTimestamp
     private LocalDateTime updateDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    //    @OneToMany(mappedBy = "board",
+//            fetch = FetchType.EAGER,
+//            cascade = CascadeType.REMOVE)
+//    @OrderBy("id asc")
+    // 댓글 정렬
+//    private List<Comment> comments;
+    public BoardDetailResponseDTO toDTO(){
+        return null;
+    }
 
 
 }

@@ -26,7 +26,5 @@ public class BoardDetailResponseDTO {
 
     private String userId;
 
-    private int count; // 댓글수
-
 
 }
