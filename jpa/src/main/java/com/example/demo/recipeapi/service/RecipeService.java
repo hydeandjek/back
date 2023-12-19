@@ -1,6 +1,9 @@
 package com.example.demo.recipeapi.service;
 
+import com.example.demo.recipeapi.entity.QRecipe;
+import com.example.demo.recipeapi.entity.Recipe;
 import com.example.demo.recipeapi.repository.RecipeRepository;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import java.net.HttpURLConnection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,15 +26,25 @@ public class RecipeService {
 
     private final RecipeRepository recipeRepository;
 
+    EntityManager em; // JPA 관리 핵심 객체
+
+    JPAQueryFactory factory; // QueryDSL로 쿼리문을 작성하기 위한 핵심 객체
+
     @Getter
     @Value("${RECIPE-KEY}")
     private String apiKey;
 
 
-    public String getRecipeList() {
-//        List<Recipe> recipeList = recipeRepository.findAll();
+    public String getRecipeList(int pageNum) {
+//        factory = new JPAQueryFactory(em);
+//
+//        List<Recipe> recipeList = factory.selectFrom()
 
-        String reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/1/6";
+
+
+        String reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/"
+        +pageNum+"/"+ pageNum*6;
+//        HttpURLConnection urlConnection = (HttpURLConnection) reqUri.open
 
         // 요청 헤더 설정?
 
