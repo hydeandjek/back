@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,7 +37,7 @@ public class RecipeService {
     private String apiKey;
 
 
-    public String getRecipeList(int pageNum) {
+    public Map<String, Objects> getRecipeList(int pageNum) {
 //        factory = new JPAQueryFactory(em);
 //        List<Recipe> recipeList = factory.selectFrom()
         String reqUri;
@@ -49,9 +48,6 @@ public class RecipeService {
             reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/"
                     +(((pageNum-1)*6)+1)+"/"+ pageNum*6;
         }
-
-
-
 //        HttpURLConnection urlConnection = (HttpURLConnection) reqUri.open
 
         // 요청 헤더 설정?
@@ -69,9 +65,9 @@ public class RecipeService {
 
         // 응답 데이터에서 필요한 정보를 가져오기
         Map<String, Objects> responseBody = template.getForObject(reqUri, Map.class);
-        log.info("레시피 리스트 요청 응답 데이터: {}", responseBody.toString());
+        log.info("레시피 리스트 요청 응답 데이터: {}", responseBody);
 
-        return responseBody.toString();
+        return responseBody;
 
 //        List<recipeDetailResponseDTO> dtoList = recipeList.stream()
 //                .map(recipe -> new recipeDetailResponseDTO(recipe))
@@ -84,7 +80,7 @@ public class RecipeService {
     }
 
 
-    public String getRecipeListByCategory(String category, int pageNum) {
+    public Map<String, Objects> getRecipeListByCategory(String category, int pageNum) {
         String reqUri;
         if(pageNum == 1){ // 1
             reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/"
@@ -107,9 +103,9 @@ public class RecipeService {
 
         // 응답 데이터에서 필요한 정보를 가져오기
         Map<String, Objects> responseBody = template.getForObject(reqUri, Map.class);
-        log.info("레시피 리스트 요청 응답 데이터: {}", responseBody.toString());
+        log.info("레시피 리스트 요청 응답 데이터: {}", responseBody);
 
-        return responseBody.toString();
+        return responseBody;
     }
 
     public String getRecipe(String category, String id) throws ParseException {
