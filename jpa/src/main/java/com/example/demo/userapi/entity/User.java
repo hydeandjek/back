@@ -33,14 +33,16 @@ public class User {
     @Column(nullable = false)
     private String userName;
 
+    @Column(nullable = false)
+    private String userAddress;
+
     @CreationTimestamp
     private LocalDateTime joinDate;
 
-    private String accessToken;
+    @OneToOne(cascade = CascadeType.ALL)
+    private SnsLogin snsLogin;
 
-    public void setAccessToken(String accessToken){
-        this.accessToken = accessToken;
-    }
+    public void setSnsLogin(SnsLogin snsLogin) {this.snsLogin = snsLogin;}
 }
 
 

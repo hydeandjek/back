@@ -8,7 +8,10 @@ import com.example.demo.userapi.dto.response.KakaoUserDTO;
 import com.example.demo.userapi.dto.response.LoginResponseDTO;
 import com.example.demo.userapi.dto.response.NaverUserDTO;
 import com.example.demo.userapi.dto.response.UserSignUpResponseDTO;
+import com.example.demo.userapi.entity.LoginType;
+import com.example.demo.userapi.entity.SnsLogin;
 import com.example.demo.userapi.entity.User;
+import com.example.demo.userapi.repository.SnsUserRepository;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ import java.util.Map;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final SnsUserRepository snsUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
 
@@ -113,7 +117,6 @@ public class UserService {
 
         // 토큰을 통해 사용자 정보 가져오기
         KakaoUserDTO dto = getKakaoUserInfo((String) responseData.get("access_token"));
-        log.info("kakao dto   ", dto );
 
         // 일회성 로그인으로 처리 -> dto를 바로 화면단으로 리턴
         // 회원가입 처리 -> 이메일 중복 검사 진행 -> 자체 jwt를 생성해서 토큰을 화면단에 리턴.
@@ -121,7 +124,12 @@ public class UserService {
 
         if(!isDuplicate(dto.getKakaoAccount().getEmail())){
             // 이메일이 중복되지 않았다 -> 이전에 로그인 한 적이 없음 -> DB에 데이터 세팅
-            User saved = userRepository.save(dto.toEntity((String) responseData.get("access_token")));
+            // 새로운 snslogin 생성
+            SnsLogin snsLogin = SnsLogin.builder()
+                    .loginType(LoginType.KAKAO)
+                    .accessToken((String) responseData.get("access_token"))
+                    .build();
+            User saved = userRepository.save(dto.toEntity(snsLogin));
             log.info("kakao Service   ",saved );
             userRepository.save(saved);
 
@@ -132,10 +140,13 @@ public class UserService {
                 .orElseThrow();
 
 
-
         String token = tokenProvider.createToken(foundUser);
 
-        foundUser.setAccessToken((String) responseData.get("access_token"));
+
+        SnsLogin snsLogin = foundUser.getSnsLogin();
+        // 유저의 sns_id로 SnsLogin 테이블에서 찾아서 넣어야 함
+        snsLogin.setAccessToken((String) responseData.get("access_token"));
+
         userRepository.save(foundUser);
 
         return new LoginResponseDTO(foundUser, token);
@@ -161,6 +172,7 @@ public class UserService {
         // 응답 바디 읽기
         KakaoUserDTO responseData = responseEntity.getBody();
         log.info("user profile: {}", responseData);
+
 
         return responseData;
     }
@@ -213,7 +225,7 @@ public class UserService {
         User foundUser = userRepository.findById(userInfo.getUserId())
                 .orElseThrow(); // 사용자 정보 들어있음
 
-        String accesstoken = foundUser.getAccessToken();
+        String accesstoken = foundUser.getSnsLogin().getAccessToken();
         if(accesstoken != null){
             String reqUri = "https://kapi.kakao.com/v1/user/logout";
             HttpHeaders headers = new HttpHeaders();
@@ -297,8 +309,15 @@ public class UserService {
 
         if(!isDuplicate(dto.getResponse().getEmail())){
             // 이메일이 중복되지 않았다 -> 이전에 로그인 한 적이 없음 -> DB에 데이터 세팅
-            User saved = userRepository.save(dto.toEntity((String) responseData.get("access_token")));
+            // 새로운 snslogin 생성
+            SnsLogin snsLogin = SnsLogin.builder()
+                    .loginType(LoginType.NAVER)
+                    .accessToken((String) responseData.get("access_token"))
+                    .build();
+            User saved = userRepository.save(dto.toEntity(snsLogin));
+            log.info("naver Service   ",saved );
             userRepository.save(saved);
+
         }
         // 이메일이 중복됐다? -> 이전에 로그인 한 적이 있다. -> DB에 데이터를 또 넣을 필요는 없다.
         // 조회한다
@@ -308,7 +327,11 @@ public class UserService {
 
         String token = tokenProvider.createToken(foundUser);
 
-        foundUser.setAccessToken((String) responseData.get("access_token"));
+
+        SnsLogin snsLogin = foundUser.getSnsLogin();
+        // 유저의 sns_id로 SnsLogin 테이블에서 찾아서 넣어야 함
+        snsLogin.setAccessToken((String) responseData.get("access_token"));
+
         userRepository.save(foundUser);
 
         return new LoginResponseDTO(foundUser, token);

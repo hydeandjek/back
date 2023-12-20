@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8181"})
+@RequestMapping("/api/user")
+@CrossOrigin(origins = {"http://localhost:8181/", "http://localhost:3000"})
 public class UserController {
 
     private final UserService userService;
@@ -72,6 +72,7 @@ public class UserController {
     public ResponseEntity<?> signIn(
             @Validated @RequestBody LoginRequestDTO dto
     ) {
+        log.info("로그인요청들어옴");
         try {
             LoginResponseDTO responseDTO
                     = userService.authenticate(dto);

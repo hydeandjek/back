@@ -1,6 +1,8 @@
 package com.example.demo.userapi.dto.response;
 
 
+import com.example.demo.userapi.entity.LoginType;
+import com.example.demo.userapi.entity.SnsLogin;
 import com.example.demo.userapi.entity.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -8,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -39,12 +42,12 @@ public class KakaoUserDTO {
 
     }
 
-    public User toEntity(String accessToken){
+    public User toEntity(SnsLogin snsLogin){
         return User.builder()
                 .email(this.kakaoAccount.email)
                 .userName(this.kakaoAccount.profile.nickname)
-                .password("password!")
-                .accessToken(accessToken)
+                .password(UUID.randomUUID().toString())
+                .snsLogin(snsLogin)
                 .build();
     }
 

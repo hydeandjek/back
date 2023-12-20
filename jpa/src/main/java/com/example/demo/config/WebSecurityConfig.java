@@ -44,19 +44,20 @@ public class WebSecurityConfig {
                 // 세션인증을 사용하지 않겠다.
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                // 어떤 요청에서 인증을 안 할 것인지, 언제 인증을 할 것인지 설정
-                .authorizeRequests()
-                // /api/auth/** 은 permit이지만, /promote는 검증이 필요하기 때문에 추가.( 순서 조심! )
-                .antMatchers(HttpMethod.PUT, "/api/auth/promote")
-                .authenticated() // 윗줄과 이 줄,  두줄을 써야 토큰이 없이 응답을 보냈을 때 요청이 필터된다
-                .antMatchers("/api/auth/load-profile").authenticated()
-                // '/api/auth'로 시작하는 요청과 '/'요청은 권한 검사 없이 허용하겠다.
-                .antMatchers("/", "/api/auth/**").permitAll()
-                // '/api/todos'라는 요청이 POST로 들어오고, Role 값이 ADMIN인 경우 검사 없이 허용하겟다.
-//                .antMatchers(HttpMethod.POST, "/api/todos").hasRole("ADMIN").permitAll()
-                // 위에서 따로 설정하지 않은 나머니 요청들은 권한 검사가 필요하다.
-                .anyRequest().authenticated();
+                .and().authorizeRequests()
+                .anyRequest().permitAll();
+
+//        http
+//                .cors()
+//                .and()
+//                .csrf().disable()
+//                .httpBasic().disable()
+//                // 세션인증을 사용하지 않겠다
+//                .sessionManagement()
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .and()
+//                .authorizeRequests()
+//                .anyRequest().permitAll();
 
         // 토큰 인증 필터 연결
         // jwtAuthFilter 부터 연결후 CorsFilter를 이후에 통과하도록 해야 됨
