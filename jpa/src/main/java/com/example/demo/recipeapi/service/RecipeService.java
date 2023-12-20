@@ -118,30 +118,34 @@ public class RecipeService {
 
         RestTemplate template = new RestTemplate();
 
-        Map<String, Objects> responseBody = template.getForObject(reqUri, Map.class);
-        log.info("레시피 리스트 요청 응답 데이터: {}", responseBody.toString());
+        String jsonString = template.getForObject(reqUri, String.class); // 스트링으로 받아야 그대로 받음.
+        log.info("레시피 리스트 요청 응답 데이터: {}", jsonString);
 
         // api요청으로 받아온 json데이터의 요리 카테고리 추출
-//        JSONParser jsonParser = new JSONParser();
+        JSONParser jsonParser = new JSONParser();
 //        //JSON데이터를 넣어 JSON Object 로 만들어 준다.
 //         JSONObject jsonObject = (JSONObject) jsonParser.parse(responseBody
 //                                                                .toString()
-//                                                                .replaceAll("\\uFEFF", ""));
-//
-//        JSONObject cookrcp01 = jsonObject.get("COOKRCP01"); // 배열 추출
-//        JSONArray recipe = (JSONArray) jsonObject.get("row"); // 배열 추출
-//        JSONArray recipe = (JSONArray) jsonObject.get("row"); // 배열 추출
-//        log.info("배열: {}", recipe);
-//
-//         JSONObject recipeObj = (JSONObject) recipe.get(0); // 배열 안 객체 추출
-//        Object rcpCategory = recipeObj.get("RCP_PAT2"); // 객체 안의 키의 값 추출
-//
-//        // 매개변수로 받은 카테고리 != api요청에 따라 받은 요리의 카테고리
-//        if(!category.equals(rcpCategory)){
-//            throw new IllegalArgumentException("해당 카테고리와 아이디에 맞는 레시피를 가져올 수 없습니다!");
-//        }
-        return responseBody.toString();
+//                                                                .replaceAll("●", ""));
+////                                                                .replaceAll("\\uFEFF", ""));
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(jsonString); // 파싱
 
+
+//        JSONObject cookrcp01 = (JSONObject) jsonObject.get("COOKRCP01"); // 객체 추출
+        JSONObject cookrcp01 = (JSONObject) jsonObject.get("COOKRCP01");
+        JSONArray recipe = (JSONArray) cookrcp01.get("row"); // 배열 추출
+
+        log.info("배열: {}", recipe);
+
+         JSONObject recipeObj = (JSONObject) recipe.get(0); // 배열 안 객체 추출
+        String rcpCategory = (String) recipeObj.get("RCP_PAT2"); // 객체 안의 키의 값 추출
+
+        // 매개변수로 받은 카테고리 != api요청에 따라 받은 요리의 카테고리
+        if(!category.equals(rcpCategory)){
+            throw new IllegalArgumentException("해당 카테고리와 아이디에 맞는 레시피를 가져올 수 없습니다!");
+        }
+
+        return jsonString;
 
     }
 
