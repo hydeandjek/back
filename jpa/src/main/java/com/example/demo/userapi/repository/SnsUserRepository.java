@@ -9,9 +9,9 @@ import java.util.Optional;
 public interface SnsUserRepository
         extends JpaRepository<SnsLogin, String> {
 
-    Optional<SnsLogin> findByEmail(String email);
 
     boolean existsById(String id);
+
 
 
 }

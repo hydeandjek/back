@@ -10,8 +10,9 @@ import com.example.demo.qnaapi.dto.response.BoardDetailResponseDTO;
 import com.example.demo.qnaapi.dto.response.CommentDetailResponseDTO;
 import com.example.demo.qnaapi.entity.QuestionBoard;
 import com.example.demo.qnaapi.entity.QuestionComment;
-import com.example.demo.qnaapi.repository.BoardRepository;
-import com.example.demo.qnaapi.repository.CommentRepository;
+
+import com.example.demo.qnaapi.repository.QnaBoardRepository;
+import com.example.demo.qnaapi.repository.QnaCommentRepository;
 import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,9 @@ import java.util.List;
 @RequiredArgsConstructor // @RequiredArgsConstructor를 사용할 땐 레포지토리에 final을 해야 주입이 된다
 @Transactional
 public class QnaService {
-    private final BoardRepository boardRepository;
+    private final QnaBoardRepository boardRepository;
     private final UserRepository userRepository;
-    private final CommentRepository commentRepository;
+    private final QnaCommentRepository commentRepository;
 
 
 
