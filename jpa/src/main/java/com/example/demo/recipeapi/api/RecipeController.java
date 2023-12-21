@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @Slf4j
@@ -25,7 +27,7 @@ public class RecipeController {
     @GetMapping("/total/{pageNum}")
     public ResponseEntity<?> getRecipeList(@PathVariable int pageNum){
         log.info("/api/recipe GET Recipe List Request");
-        String responseDTO = recipeService.getRecipeList(pageNum);
+        Map<String, Objects> responseDTO = recipeService.getRecipeList(pageNum);
 
         return ResponseEntity.ok().body(responseDTO);
     }
@@ -34,7 +36,7 @@ public class RecipeController {
     @GetMapping("/{category}/{pageNum}") // 예: 반찬/1페이지
     public ResponseEntity<?> getRecipeList(@PathVariable String category, @PathVariable int pageNum) {
         log.info("/api/menu/recipe/{}/{} - GET Recipe List by Category Request", category, pageNum);
-        String responseDTO = recipeService.getRecipeListByCategory(category, pageNum);
+        Map<String, Objects> responseDTO = recipeService.getRecipeListByCategory(category, pageNum);
 
         return ResponseEntity.ok().body(responseDTO);
     }
