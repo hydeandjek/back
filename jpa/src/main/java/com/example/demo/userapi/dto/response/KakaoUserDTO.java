@@ -47,6 +47,7 @@ public class KakaoUserDTO {
                 .email(this.kakaoAccount.email)
                 .userName(this.kakaoAccount.profile.nickname)
                 .password(UUID.randomUUID().toString())
+                .userAddress("")
                 .snsLogin(snsLogin)
                 .build();
     }

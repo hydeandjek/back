@@ -5,7 +5,6 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
-@Setter
 @Getter
 @ToString
 @EqualsAndHashCode(of = "id")
@@ -14,8 +13,8 @@ import javax.persistence.*;
 @Builder
 
 @Entity
-@Table(name = "tbl_snsusers")
-public class SnsLogin{
+@Table(name = "tbl_sns_users")
+public class SnsLogin {
 
     @Id
     @Column(name = "sns_id")
@@ -23,14 +22,12 @@ public class SnsLogin{
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String id;
 
-    @Column(nullable = false, unique = true)
-    private String email; //로그인시 아이디처럼 사용
 
-
+    @Setter
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    @Column
+    @Setter
     private String accessToken;
 
 }
