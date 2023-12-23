@@ -1,6 +1,7 @@
 package com.example.demo.userapi.api;
 
 import com.example.demo.auth.TokenUserInfo;
+import com.example.demo.chatapi.util.SHA256;
 import com.example.demo.userapi.dto.request.LoginRequestDTO;
 import com.example.demo.userapi.dto.request.UserRequestSignUpDTO;
 import com.example.demo.userapi.dto.response.LoginResponseDTO;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8181"})
+@CrossOrigin
 public class UserController {
 
     private final UserService userService;
@@ -117,6 +118,12 @@ public class UserController {
 
     }
 
+    // 암호화된 userid
+    @GetMapping("/userid")
+    public ResponseEntity<?> getUserId(@AuthenticationPrincipal TokenUserInfo userInfo) {
+        log.info("/api/user/userid - user: {}", userInfo);
+        return ResponseEntity.ok().body(new SHA256().encrypt(userInfo.getUserId()));
+    }
 
 
 

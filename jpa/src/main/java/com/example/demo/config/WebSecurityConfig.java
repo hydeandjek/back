@@ -2,6 +2,7 @@ package com.example.demo.config;
 
 import com.example.demo.filter.JwtAuthFilter;
 import com.example.demo.filter.JwtExceptionFilter;
+import com.example.demo.userapi.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,6 +39,7 @@ public class WebSecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/api/chat/admin/**").hasRole(String.valueOf(Role.ADMIN))
                 .anyRequest().permitAll();
 
 
