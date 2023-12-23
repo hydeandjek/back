@@ -84,10 +84,10 @@ public class RecipeService {
         String reqUri;
         if(pageNum == 1){ // 1
             reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/"
-                    +pageNum+"/"+ pageNum*6+"/RCP_PAT2="+category;
+                    +pageNum+"/"+ pageNum*8+"/RCP_PAT2="+category;
         }else { // 2~
             reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/"
-                    +(((pageNum-1)*6)+1)+"/"+ pageNum*6+"/RCP_PAT2="+category;
+                    +(((pageNum-1)*8)+1)+"/"+ pageNum*8+"/RCP_PAT2="+category;
         }
 
         // 요청 보내기
