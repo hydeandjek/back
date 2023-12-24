@@ -11,6 +11,19 @@ spring:
     hibernate:
       ddl-auto: update
     database: mysql
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
   config:
     import:
       - classpath:/secret.yml
