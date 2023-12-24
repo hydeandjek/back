@@ -43,10 +43,10 @@ public class RecipeService {
         String reqUri;
         if(pageNum == 1){ // 1
             reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/"
-                    +pageNum+"/"+ pageNum*8;
+                    +pageNum+"/"+ pageNum*9;
         }else { // 2~
             reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/"
-                    +(((pageNum-1)*8)+1)+"/"+ pageNum*8;
+                    +(((pageNum-1)*9)+1)+"/"+ pageNum*9;
         }
 //        HttpURLConnection urlConnection = (HttpURLConnection) reqUri.open
 
