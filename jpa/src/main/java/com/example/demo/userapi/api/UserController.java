@@ -15,6 +15,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -122,13 +124,39 @@ public class UserController {
     @GetMapping("/userid")
     public ResponseEntity<?> getUserId(@AuthenticationPrincipal TokenUserInfo userInfo) {
         log.info("/api/user/userid - user: {}", userInfo);
-        return ResponseEntity.ok().body(new SHA256().encrypt(userInfo.getUserId()));
+        return ResponseEntity.ok().body(SHA256.encrypt(userInfo.getUserId()));
     }
 
+    @PostMapping("/email-auth")
+    public ResponseEntity<?> emailAuth(@RequestBody HashMap<String, String> map) {
+        String email = map.get("email");
+        log.info("/api/user/email-auth - email: {}", email);
+        try {
+            String token = userService.emailAuthenticate(email);
+            return ResponseEntity.ok().body(token);
+        } catch (Exception e) {
+            log.warn("/api/user/email-auth", e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 
+    @PostMapping("/email-auth-check")
+    public ResponseEntity<?> emailAuthCheck(@RequestBody HashMap<String, String> map) {
+        String token = map.get("token");
+        String authcode = map.get("authcode");
+        log.info("/api/user/email-auth - {} {}", token, authcode);
+        try {
+            String resToken = userService.emailAuthenticateCheck(token, authcode);
 
+            if (resToken != null) {
+                return ResponseEntity.ok().body(resToken);
+            } else {
+                return ResponseEntity.badRequest().body("잘못된 인증코드입니다.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
 
-
-
+    }
 
 }
