@@ -1,7 +1,10 @@
 package com.example.demo.userapi.service;
 
+import com.example.demo.auth.TokenEmailCheckInfo;
+import com.example.demo.auth.TokenEmailCheckProvider;
 import com.example.demo.auth.TokenProvider;
 import com.example.demo.auth.TokenUserInfo;
+import com.example.demo.mail.service.MailService;
 import com.example.demo.userapi.dto.request.LoginRequestDTO;
 import com.example.demo.userapi.dto.request.UserRequestSignUpDTO;
 import com.example.demo.userapi.dto.response.KakaoUserDTO;
@@ -29,6 +32,7 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 @Slf4j
@@ -40,6 +44,8 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
+    private final TokenEmailCheckProvider tokenEmailCheckProvider;
+    private final MailService mailService;
 
     @Value("${kakao.client_id}")
     private String KAKAO_CLIENT_ID;
@@ -404,4 +410,35 @@ public class UserService {
     }
 
 
+    public String emailAuthenticate(String email) {
+        String authcode = String.valueOf(makeRandomNumber());
+        //mailService.sendEmail(email, "1terface 인증코드입니다.", authcode);
+
+        return tokenEmailCheckProvider.createToken(email, authcode, false);
+    }
+
+    public String emailAuthenticateCheck(String token, String authcode) {
+        TokenEmailCheckInfo emailCheckInfo = tokenEmailCheckProvider.validateAndGetTokenEmailCheckInfo(token);
+        if (tokenEmailCheckProvider.checkPasscode(emailCheckInfo.getAuthCode(), authcode)) {
+            // 성공
+            return tokenEmailCheckProvider.createToken(
+                    emailCheckInfo.getEmail()
+                  , authcode
+                  ,true);
+        }
+        else {
+            // 실패
+            return null;
+        }
+    }
+
+    // 난수 발생
+    private int makeRandomNumber() {
+        // 난수의 범위: 111111 - 999999
+        Random r = new Random();
+        int checkNum = r.nextInt(888888) + 111111;
+        System.out.println("인증번호: " + checkNum);
+
+        return checkNum;
+    }
 }
