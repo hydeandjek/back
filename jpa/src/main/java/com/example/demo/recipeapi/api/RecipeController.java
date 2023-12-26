@@ -43,13 +43,15 @@ public class RecipeController {
     }
 
     // 레시피 상세보기 요청 처리
-    @GetMapping("detail/{category}/{id}")
-    public ResponseEntity<?> getRecipe(@PathVariable String category, @PathVariable String id){
+    @GetMapping("detail/{name}/{category}/{id}")
+    public ResponseEntity<?> getRecipe(@PathVariable String name,
+                                       @PathVariable String category,
+                                       @PathVariable String id){
         try {
 //            URLEncoder.encode(category, "UTF-8");
-            log.info("/api/menu/recipe/detail/{}/{} - GET Recipe Detail Request"
-                    , category, id);
-            String responseDTO = recipeService.getRecipe(category, id);
+            log.info("/api/menu/recipe/detail/{}/{}/{} - GET Recipe Detail Request"
+                    ,name, category, id);
+            Map<String, Object> responseDTO =recipeService.getRecipe(name, category, id);
 
 
             return ResponseEntity.ok().body(responseDTO);
