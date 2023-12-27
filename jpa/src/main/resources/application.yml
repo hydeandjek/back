@@ -13,6 +13,8 @@ spring:
       ddl-auto: update
     database: mysql
   mail:
+    username: 1@gmail.com
+    password: 1
     host: smtp.gmail.com
     port: 587
     properties:
