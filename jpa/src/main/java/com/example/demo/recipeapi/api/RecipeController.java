@@ -5,6 +5,7 @@ import com.example.demo.recipeapi.service.RecipeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class RecipeController {
     // 전체 레시피 리스트 요청 처리
     @GetMapping("/total/{pageNum}")
     public ResponseEntity<?> getRecipeList(@PathVariable int pageNum){
-        log.info("/api/recipe GET Recipe List Request");
+        log.info("/api/menu/recipe GET Recipe List Request");
         Map<String, Objects> responseDTO = recipeService.getRecipeList(pageNum);
 
         return ResponseEntity.ok().body(responseDTO);
@@ -42,13 +43,15 @@ public class RecipeController {
     }
 
     // 레시피 상세보기 요청 처리
-    @GetMapping("detail/{category}/{id}")
-    public ResponseEntity<?> getRecipe(@PathVariable String category, @PathVariable String id){
+    @GetMapping("detail/{name}/{category}/{id}")
+    public ResponseEntity<?> getRecipe(@PathVariable String name,
+                                       @PathVariable String category,
+                                       @PathVariable String id){
         try {
 //            URLEncoder.encode(category, "UTF-8");
-            log.info("/api/menu/recipe/detail/{}/{} - GET Recipe Detail Request"
-                    , category, id);
-            String responseDTO = recipeService.getRecipe(category, id);
+            log.info("/api/menu/recipe/detail/{}/{}/{} - GET Recipe Detail Request"
+                    ,name, category, id);
+            Map<String, Object> responseDTO =recipeService.getRecipe(name, category, id);
 
 
             return ResponseEntity.ok().body(responseDTO);
