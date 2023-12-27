@@ -161,7 +161,14 @@ public class QnaController {
     public void commentdelete(@AuthenticationPrincipal TokenUserInfo userInfo,
                               @PathVariable("b_id") int boardId,
                               @PathVariable("r_id") int commentId){
+        log.info("aaaaaaaaaaaaaaaaaaaaaaa");
+        log.info("asdfs2{}",String.valueOf(boardId));
+        log.info("asdfs3{}",String.valueOf(commentId));
+        log.info("asdfs1{}", userInfo.toString());
+
+
         qnaService.boardCommentDel(userInfo, boardId, commentId);
+
 
     }
 

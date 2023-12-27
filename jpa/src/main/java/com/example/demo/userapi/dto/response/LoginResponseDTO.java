@@ -26,6 +26,8 @@ public class LoginResponseDTO {
     private String token; // 인증 토큰
 
 
+
+
     // private String message; // 로그인 메세지
 
     public LoginResponseDTO(User user, String token) {

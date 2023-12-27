@@ -15,9 +15,13 @@ import java.time.LocalDateTime;
 @Builder
 public class BoardDetailResponseDTO {
 
+    private int rowNumber;
+
     private int boardId;
 
     private String userId;
+
+    private String userName;
 
     private String title;
 

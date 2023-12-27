@@ -18,6 +18,8 @@ public class CommentDetailResponseDTO {
 
     private String userId;
 
+    private String userName;
+
 
     private String content;
 
