@@ -32,6 +32,4 @@ public interface QnaCommentRepository
     List<QuestionComment> findboard(@Param("boardId") int boardId);
 
 
-
-
 }
