@@ -1,6 +1,7 @@
 package com.example.demo.userapi.api;
 
 import com.example.demo.auth.TokenUserInfo;
+import com.example.demo.chatapi.util.SHA256;
 import com.example.demo.userapi.dto.request.LoginRequestDTO;
 import com.example.demo.userapi.dto.request.UserRequestSignUpDTO;
 import com.example.demo.userapi.dto.response.LoginResponseDTO;
@@ -14,11 +15,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8181"})
+@CrossOrigin
 public class UserController {
 
     private final UserService userService;
@@ -117,11 +120,43 @@ public class UserController {
 
     }
 
+    // 암호화된 userid
+    @GetMapping("/userid")
+    public ResponseEntity<?> getUserId(@AuthenticationPrincipal TokenUserInfo userInfo) {
+        log.info("/api/user/userid - user: {}", userInfo);
+        return ResponseEntity.ok().body(SHA256.encrypt(userInfo.getUserId()));
+    }
 
+    @PostMapping("/email-auth")
+    public ResponseEntity<?> emailAuth(@RequestBody HashMap<String, String> map) {
+        String email = map.get("email");
+        log.info("/api/user/email-auth - email: {}", email);
+        try {
+            String token = userService.emailAuthenticate(email);
+            return ResponseEntity.ok().body(token);
+        } catch (Exception e) {
+            log.warn("/api/user/email-auth", e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 
+    @PostMapping("/email-auth-check")
+    public ResponseEntity<?> emailAuthCheck(@RequestBody HashMap<String, String> map) {
+        String token = map.get("token");
+        String authcode = map.get("authcode");
+        log.info("/api/user/email-auth - {} {}", token, authcode);
+        try {
+            String resToken = userService.emailAuthenticateCheck(token, authcode);
 
+            if (resToken != null) {
+                return ResponseEntity.ok().body(resToken);
+            } else {
+                return ResponseEntity.badRequest().body("잘못된 인증코드입니다.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
 
-
-
+    }
 
 }
