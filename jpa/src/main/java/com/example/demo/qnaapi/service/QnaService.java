@@ -44,18 +44,14 @@ public class QnaService {
         log.info(all.toString());
         List<BoardDetailResponseDTO> boardDetailList = new ArrayList<>();
 
-        for (int i = 0; i < all.size(); i++) {
-            QuestionBoard questionBoard = all.get(i);
-
+        for (QuestionBoard questionBoard : all) {
             BoardDetailResponseDTO build = BoardDetailResponseDTO.builder()
-                    .rowNumber(i + 1) // i는 0부터 시작하므로 1을 더해줌
                     .boardId(questionBoard.getBoardId())
                     .title(questionBoard.getTitle())
                     .content(questionBoard.getContent())
                     .regDate(questionBoard.getRegDate())
                     .updateDate(questionBoard.getUpdateDate())
                     .userId(questionBoard.getUser().getId())
-                    .userName(questionBoard.getUser().getUserName())
                     .build();
 
             boardDetailList.add(build);
@@ -82,14 +78,11 @@ public class QnaService {
                 .regDate(allById.getRegDate())
                 .regDate(allById.getUpdateDate())
                 .userId(id1)
-                .userName(allById.getUser().getUserName())
                 .build();
-
 
         log.info("yyyyyyyyyyy{}",build);
 
         return build;
-
     }
 
     // 게시물 추가
@@ -154,7 +147,7 @@ public class QnaService {
         log.info(allById.toString());
         log.info(userId);
 
-        if (allById.getUser().getId().equals(userId)){
+        if (allById.getUser().getId().toString().equals(userId)){
             log.info("성공성공성공");
             boardRepository.deleteById(id);
         }
@@ -182,7 +175,6 @@ public class QnaService {
                         .regDate(comment.getUpdateDate()) // 수정된 댓글이라면 수정날짜 넣기
                         .userId(comment.getUser().getId())
                         .boardId(comment.getBoard().getBoardId())
-                        .userName(comment.getUser().getUserName())
                         .build();
 
             } else {
@@ -267,13 +259,7 @@ public class QnaService {
 
         QuestionComment bycommentId = commentRepository.findById(commentId);
 
-        log.info(userInfo.toString());
-        log.info(String.valueOf(boardId));
-        log.info(String.valueOf(commentId));
-
-        log.info(bycommentId.toString());
-
-        if (bycommentId.getUser().getId().equals(userInfo.getUserId())){
+        if (bycommentId.getUser().getId().equals(userInfo.getUserId()) || bycommentId.getBoard().equals(boardId)){
             commentRepository.deleteById(commentId);
         }
 
