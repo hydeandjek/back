@@ -3,6 +3,7 @@ package com.example.demo.boardapi.service;
 import com.example.demo.boardapi.dto.*;
 import com.example.demo.boardapi.entity.Board;
 import com.example.demo.boardapi.repository.BoardRepository;
+import com.example.demo.qnaapi.entity.QuestionBoard;
 import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.auth.TokenUserInfo;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.*;
 
 @Service
@@ -22,37 +26,107 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public List<BoardResponseDTO> getBoardList(String category) {
 //        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
-        List<Board> boardList = boardRepository.findAllByCategory(category);
 
         List<BoardResponseDTO> dtoList = new ArrayList<>();
-        for(Board board : boardList){
-            BoardResponseDTO dto = BoardResponseDTO.builder()
-                                        .id(board.getBoardId())
-                                        .title(board.getTitle())
-                                        .category(category)
-                                        .regDate(board.getRegDate())
-                                        .userId(board.getUser().getId())
-                                        .build();
-            dtoList.add(dto);
+        int i = 0;
+
+        if("entire".equals(category)){
+            List<Board> all = boardRepository.findAll();
+
+            for (Board board : all) {
+                BoardResponseDTO dto = BoardResponseDTO.builder()
+                        .id(board.getBoardId())
+                        .title(board.getTitle())
+                        .category(board.getCategory())
+                        .regDate(board.getRegDate())
+                        .userId(board.getUser().getId())
+                        .userName(board.getUser().getUserName())
+                        .rowNum(i += 1)
+                        .build();
+
+                dtoList.add(dto);
+            }
+
+        }else {
+            List<Board> boardList = boardRepository.findAllByCategory(category);
+
+            for (Board board : boardList) {
+                BoardResponseDTO dto = BoardResponseDTO.builder()
+                        .id(board.getBoardId())
+                        .title(board.getTitle())
+                        .category(category)
+                        .regDate(board.getRegDate())
+                        .userId(board.getUser().getId())
+                        .userName(board.getUser().getUserName())
+                        .rowNum(i += 1)
+                        .build();
+                dtoList.add(dto);
+            }
         }
         return dtoList;
     }
 
     public BoardDetailResponseDTO getBoard(String category, int id) {
-        Board board = boardRepository.findByCategoryAndId(category, id);
 
-        BoardDetailResponseDTO dto = BoardDetailResponseDTO.builder()
-                .id(board.getBoardId())
-                .title(board.getTitle())
-                .content(board.getContent())
-                .category(board.getCategory())
-                .regDate(board.getRegDate())
-                .userId(board.getUser().getId())
-                .build();
+//
+//
+//            log.info("Wefwfewfe", String.valueOf(board.getBoardId()));
+//
+//            BoardDetailResponseDTO dto = BoardDetailResponseDTO.builder()
+//                    .id(board.getBoardId())
+//                    .title(board.getTitle())
+//                    .content(board.getContent())
+//                    .category(board.getCategory())
+//                    .regDate(board.getRegDate())
+//                    .userId(board.getUser().getId())
+//                    .build();
 
-        return dto;
+
+
+        if("entire".equals(category)){
+            Board board = boardRepository.findByBoardId(id);
+
+
+
+            BoardDetailResponseDTO build =
+                    BoardDetailResponseDTO.builder()
+                    .id(board.getBoardId())
+                    .title(board.getTitle())
+                    .category(category)
+                            .content(board.getContent())
+                    .regDate(board.getRegDate())
+                    .userId(board.getUser().getId())
+                    .userName(board.getUser().getUserName())
+                    .build();
+
+            return build;
+
+        }else {
+            Board board = boardRepository.findByCategoryAndId(category, id);
+
+
+
+            BoardDetailResponseDTO build =
+                    BoardDetailResponseDTO.builder()
+                    .id(board.getBoardId())
+                    .title(board.getTitle())
+                    .category(category)
+                            .content(board.getContent())
+                    .regDate(board.getRegDate())
+                    .userId(board.getUser().getId())
+                    .userName(board.getUser().getUserName())
+                    .build();
+
+            return build;
+        }
+
+
+
     }
 
     public BoardDetailResponseDTO registerBoard(
@@ -117,15 +191,15 @@ public class BoardService {
                 throw new RuntimeException("작성 권한이 없습니다.");
             }
 
-            boardRepository.deleteById(id);
 
-            return BoardResponseDTO.builder()
-                    .id(board.getBoardId())
-                    .title(board.getTitle())
-                    .category(board.getCategory())
-                    .regDate(board.getRegDate())
-                    .userId(board.getUser().getId())
-                    .build();
+
+        Query query = entityManager.createQuery("DELETE FROM Comment c WHERE c.board.boardId = :boardId");
+        query.setParameter("boardId", id);
+        query.executeUpdate();
+
+
+        boardRepository.deleteById(id);
+            return null;
     }
 
 

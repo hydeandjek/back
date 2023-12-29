@@ -4,19 +4,18 @@ import com.example.demo.auth.TokenUserInfo;
 import com.example.demo.boardapi.dto.*;
 import com.example.demo.boardapi.service.BoardService;
 import com.example.demo.boardapi.service.CommentService;
-import jdk.jfr.Category;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @Slf4j
@@ -153,7 +152,7 @@ public class BoardController {
             BindingResult result
     ){
         log.info("/api/onelife-board POST - comment Register Request");
-        log.info("RequestDTO: {} ", requestDTO);
+        log.info("RequestDTO: {} ", requestDTO.getContent());
         log.info("TokenUserInfo: {} ", userInfo);
 
         if(result.hasErrors()) {
@@ -164,10 +163,9 @@ public class BoardController {
         }
 
         try {
-            CommentResponseDTO responseDTO
-                    = commentService.registerComment(boardId, requestDTO, userInfo);
+            commentService.registerComment(boardId, requestDTO, userInfo);
 
-            return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+            return null;
         } catch (RuntimeException e) {
             e.printStackTrace();
             return ResponseEntity
