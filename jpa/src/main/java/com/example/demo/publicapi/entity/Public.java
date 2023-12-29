@@ -25,4 +25,10 @@ public class Public {
 
     @Column(name = "num")
     private String publicNum;
+
+    @Column
+    private String x;
+
+    @Column
+    private String y;
 }
