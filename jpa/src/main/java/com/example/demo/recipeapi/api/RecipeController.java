@@ -1,16 +1,17 @@
 package com.example.demo.recipeapi.api;
 
-import com.example.demo.recipeapi.dto.recipeListResponseDTO;
+import com.example.demo.auth.TokenUserInfo;
+import com.example.demo.recipeapi.dto.LikeRequestDTO;
+import com.example.demo.recipeapi.dto.LikeResponseDTO;
 import com.example.demo.recipeapi.service.RecipeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import javax.validation.Valid;
 import java.util.Map;
 import java.util.Objects;
 
@@ -61,6 +62,34 @@ public class RecipeController {
         }
 
     }
+
+    // 좋아요 기능
+    @PostMapping("/like")
+    public ResponseEntity<?> insert(@AuthenticationPrincipal TokenUserInfo userInfo,
+                                    @RequestBody @Valid LikeRequestDTO likeRequestDTO) {
+
+        log.info("/api/menu/recipe/like - POST request!");
+        log.info("likeRequestDTO: {}", likeRequestDTO);
+
+        try {
+            LikeResponseDTO likeResponseDTO
+                    = recipeService.insert(likeRequestDTO, userInfo.getUserId());
+            return ResponseEntity.status(HttpStatus.OK).body(likeResponseDTO);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+    }
+
+//    @DeleteMapping
+//    public ResponseEntity<?> delete(@RequestBody @Valid LikeRequestDTO likeRequestDTO) {
+//        try {
+//            recipeService.delete(likeRequestDTO);
+//            return ResponseEntity.status(HttpStatus.OK).body("SUCCESS");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+//        }
+//    }
 
 
 

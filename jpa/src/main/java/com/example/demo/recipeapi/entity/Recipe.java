@@ -1,11 +1,9 @@
 package com.example.demo.recipeapi.entity;
 
+import com.example.demo.userapi.entity.User;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Getter @Setter
 @ToString @EqualsAndHashCode(of = "recipeId")
@@ -27,6 +25,11 @@ public class Recipe {
 
     private String imgSrc;
 
+    private boolean done; // 좋아요 여부
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
 
 
