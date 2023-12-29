@@ -376,10 +376,12 @@ public class UserService {
 
         // 요청 헤더 설정
         HttpHeaders headers = new HttpHeaders();
-        headers.add("grant_type", "authorization_code");
+        //headers.add("grant_type", "authorization_code");
 
         // 요청 바디(파라미터) 설정
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        System.out.println("NAVER_CLIENT_ID = " + NAVER_CLIENT_ID);
+        System.out.println("NAVER_CLIENT_SECRET = " + NAVER_CLIENT_SECRET);
         params.add("grant_type", "authorization_code"); // 발급
         params.add("client_id", NAVER_CLIENT_ID); // 애플리케이션 등록 시 발급받은 Client ID 값
         params.add("client_secret", NAVER_CLIENT_SECRET); // 애플리케이션 등록 시 발급받은 Client secret 값
@@ -412,7 +414,7 @@ public class UserService {
 
     public String emailAuthenticate(String email) {
         String authcode = String.valueOf(makeRandomNumber());
-        //mailService.sendEmail(email, "1terface 인증코드입니다.", authcode);
+        //mailService.sendEmail(email, "1nterface 회원가입 인증코드입니다.", authcode);
 
         return tokenEmailCheckProvider.createToken(email, authcode, false);
     }
