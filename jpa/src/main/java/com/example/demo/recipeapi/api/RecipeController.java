@@ -70,6 +70,7 @@ public class RecipeController {
 
         log.info("/api/menu/recipe/like - POST request!");
         log.info("likeRequestDTO: {}", likeRequestDTO);
+        log.info("찜 누른 유저: {}", userInfo);
 
         try {
             LikeResponseDTO likeResponseDTO

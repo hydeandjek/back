@@ -11,15 +11,15 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class LikeRequestDTO {
 
-    @NotBlank
-    private String userId;
+//    @NotBlank
+//    private String userId;
     @NotBlank
     private String recipeName;
-    @Builder.Default
-    private boolean done = false;
 
-    public LikeRequestDTO(String userId, String recipeName, boolean done) {
-        this.userId = userId;
+    private boolean done;
+
+    public LikeRequestDTO(String recipeName, boolean done) {
+//        this.userId = userId;
         this.recipeName = recipeName;
         this.done = done;
     }

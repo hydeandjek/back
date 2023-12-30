@@ -3,7 +3,8 @@ package com.example.demo.recipeapi.service;
 
 import com.example.demo.recipeapi.dto.LikeRequestDTO;
 import com.example.demo.recipeapi.dto.LikeResponseDTO;
-import com.example.demo.recipeapi.entity.Recipe;
+import com.example.demo.recipeapi.entity.Like;
+import com.example.demo.recipeapi.repository.LikeRepository;
 import com.example.demo.recipeapi.repository.RecipeRepository;
 import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
@@ -20,7 +21,6 @@ import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.webjars.NotFoundException;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
@@ -36,7 +36,7 @@ public class RecipeService {
 
     private final RecipeRepository recipeRepository;
     private final UserRepository userRepository;
-//    private final LikeRepository likeRepository;
+    private final LikeRepository likeRepository;
 
     EntityManager em; // JPA 관리 핵심 객체
 
@@ -153,7 +153,11 @@ public class RecipeService {
     }
 
     // 좋아요 기능
-    public LikeResponseDTO insert(final LikeRequestDTO likeRequestDTO, final String userId) throws Exception{
+    public LikeResponseDTO insert(final LikeRequestDTO likeRequestDTO,
+                                  final String userId)
+            throws Exception{
+        log.info("서비스 - dto: {}", likeRequestDTO);
+        log.info("서비스 - 찜 누른 유저: {}",userId);
         // 유저만 좋아요할 수 있으므로 유저 조회
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new RuntimeException("회원 정보가 없습니다.")
@@ -184,11 +188,23 @@ public class RecipeService {
             throw new IllegalArgumentException("해당 레시피를 가져올 수 없습니다!");
         }
 
+
+//        Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).orElseThrow(null);
+
+        if(likeRequestDTO.isDone()){ // 요청으로 전달된 dto의 done 값이 true라면 (like는 null일 것)
+//            log.info("like는 null이어야 맞음: {}", like);
+            Like saved = likeRepository.save(Like.builder().recipeName(likeRequestDTO.getRecipeName()).user(user).build());
+        } else {
+            Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName());
+            log.info("like는 null이 아니어야 맞음: {}", like);
+            likeRepository.delete(like);
+        }
+
         return LikeResponseDTO.builder()
                 .done(likeRequestDTO.isDone())
                 .recipeName(likeRequestDTO.getRecipeName())
                 .userId(userId)
-                .build();
+                .build(); // 찜목록에서 추가되거나 삭제된 것을 응답.
 
 //        // 이미 좋아요되어있으면 에러 반환
 //        if (likeRepository.findByUserAndRecipe(user, recipe).isPresent()){
@@ -198,17 +214,17 @@ public class RecipeService {
 
     }
 
-    public void delete(LikeRequestDTO likeRequestDTO) {
-        User user = userRepository.findById(String.valueOf(likeRequestDTO.getUserId()))
-                .orElseThrow(() -> new NotFoundException("Could not found user id : " + likeRequestDTO.getUserId()));
-
-        Recipe recipe = recipeRepository.findById(Integer.valueOf(likeRequestDTO.getRecipeName()))
-                .orElseThrow(() -> new NotFoundException("Could not found recipe id : " + likeRequestDTO.getRecipeName()));
-
+//    public void delete(LikeRequestDTO likeRequestDTO) {
+//        User user = userRepository.findById(String.valueOf(likeRequestDTO.getUserId()))
+//                .orElseThrow(() -> new NotFoundException("Could not found user id : " + likeRequestDTO.getUserId()));
+//
+//        Recipe recipe = recipeRepository.findById(Integer.valueOf(likeRequestDTO.getRecipeName()))
+//                .orElseThrow(() -> new NotFoundException("Could not found recipe id : " + likeRequestDTO.getRecipeName()));
+//
 //        Like like = likeRepository.findByUserAndRecipe(user, recipe)
 //                .orElseThrow(() -> new NotFoundException("Could not found like id"));
-
+//
 //        likeRepository.delete(like);
 
-    }
+//    }
 }

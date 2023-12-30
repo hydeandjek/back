@@ -40,6 +40,7 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/chat/admin/**").hasRole(String.valueOf(Role.ADMIN))
+                .antMatchers("/donation/approval/**").hasRole(String.valueOf(Role.ADMIN))
                 .anyRequest().permitAll();
 
 
