@@ -1,8 +1,10 @@
-package com.example.demo.shareapi.dto;
+package com.example.demo.shareapi.dto.response;
 
+import com.example.demo.shareapi.entity.Images;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Setter
 @Getter
@@ -11,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ShareResponseDTO {
+public class ShareResponseDTO { // 목록 요청 응답 시 사용
     // 번호, 게시판카테고리, 제목, 날짜, 글쓴이 필요
     private int id;
 
@@ -24,6 +26,7 @@ public class ShareResponseDTO {
     private String userId;
 
     private String imageUrl;
+//    private List<Images> uploadImages;
 
     private LocalDateTime approvalDate;
 

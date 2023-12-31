@@ -78,6 +78,7 @@ public class RecipeController {
             return ResponseEntity.status(HttpStatus.OK).body(likeResponseDTO);
 
         } catch (Exception e) {
+            log.warn("", e);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }

@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface LikeRepository extends JpaRepository<Like, Integer> {
     // 레시피이름으로 찜 테이블 조회
     @Query("SELECT l FROM Like l WHERE l.recipeName = :recipeName")
-    Like findByRecipeName(@Param("recipeName") String recipeName);
+    Optional<Like> findByRecipeName(@Param("recipeName") String recipeName);
 
 //    Optional<Like> findByRecipeName(String recipeName);
 

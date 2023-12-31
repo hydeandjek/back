@@ -1,8 +1,8 @@
 package com.example.demo.shareapi.service;
 
 import com.example.demo.auth.TokenUserInfo;
-import com.example.demo.shareapi.dto.ShareCommentRequestDTO;
-import com.example.demo.shareapi.dto.ShareCommentResponseDTO;
+import com.example.demo.shareapi.dto.request.ShareCommentRequestDTO;
+import com.example.demo.shareapi.dto.response.ShareCommentResponseDTO;
 import com.example.demo.shareapi.entity.Share;
 import com.example.demo.shareapi.entity.ShareComment;
 import com.example.demo.shareapi.repository.ShareRepository;
