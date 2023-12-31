@@ -3,8 +3,11 @@ package com.example.demo.userapi.api;
 import com.example.demo.auth.TokenUserInfo;
 import com.example.demo.chatapi.util.SHA256;
 import com.example.demo.userapi.dto.request.LoginRequestDTO;
-import com.example.demo.userapi.dto.request.UserRequestSignUpDTO;
+import com.example.demo.userapi.dto.request.UserModifyRequestDTO;
+import com.example.demo.userapi.dto.request.UserSignUpRequestDTO;
 import com.example.demo.userapi.dto.response.LoginResponseDTO;
+import com.example.demo.userapi.dto.response.UserInfoResponseDTO;
+import com.example.demo.userapi.dto.response.UserModifyResponseDTO;
 import com.example.demo.userapi.dto.response.UserSignUpResponseDTO;
 import com.example.demo.userapi.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +47,7 @@ public class UserController {
     //회원가입 요청 처리
     @PostMapping("/join")
     public ResponseEntity<?> signup(
-            @Validated @RequestBody UserRequestSignUpDTO dto, BindingResult result
+            @Validated @RequestBody UserSignUpRequestDTO dto, BindingResult result
             ){
         log.info("/api/user/join POST! - {}", dto);
 
@@ -55,8 +58,7 @@ public class UserController {
                     .body(result.getFieldError());
         }
         try {
-            String uploadedFilePath = null;
-            UserSignUpResponseDTO responseDTO = userService.create(dto, uploadedFilePath);
+            UserSignUpResponseDTO responseDTO = userService.create(dto);
             return ResponseEntity.ok()
                     .body(responseDTO);
         } catch (RuntimeException e) {
@@ -74,7 +76,7 @@ public class UserController {
     public ResponseEntity<?> signIn(
             @Validated @RequestBody LoginRequestDTO dto
     ) {
-        log.info("/api/user: GET");
+        log.info("/api/user: POST");
 
         try {
             LoginResponseDTO responseDTO
@@ -127,6 +129,7 @@ public class UserController {
         return ResponseEntity.ok().body(SHA256.encrypt(userInfo.getUserId()));
     }
 
+    // 이메일 인증의 인증 코드를 보내는 부분
     @PostMapping("/email-auth")
     public ResponseEntity<?> emailAuth(@RequestBody HashMap<String, String> map) {
         String email = map.get("email");
@@ -140,6 +143,7 @@ public class UserController {
         }
     }
 
+    // 이메일 인증의 인증 코드를 확인하는 부분
     @PostMapping("/email-auth-check")
     public ResponseEntity<?> emailAuthCheck(@RequestBody HashMap<String, String> map) {
         String token = map.get("token");
@@ -158,5 +162,46 @@ public class UserController {
         }
 
     }
+
+    // 유저 수정
+    @PutMapping
+    public ResponseEntity<?> userModify(
+            @AuthenticationPrincipal TokenUserInfo userInfo,
+            @RequestBody UserModifyRequestDTO requestDTO,
+            BindingResult result
+    ) {
+        log.info("/api/user - PUT , userId:{}, dto: {}", userInfo.getUserId(), requestDTO);
+
+        if (result.hasErrors()){
+            log.warn(result.toString());
+            return ResponseEntity.badRequest()
+                    .body(result.getFieldError());
+        }
+
+        try {
+            UserModifyResponseDTO responseDTO = userService.modify(userInfo.getUserId(), requestDTO);
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            log.warn("/api/user - PUT", e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 유저 정보
+    @GetMapping
+    public ResponseEntity<?> userInfo(
+            @AuthenticationPrincipal TokenUserInfo userInfo
+    ) {
+        log.info("/api/user - GET , userId:{}", userInfo.getUserId());
+
+        try {
+            UserInfoResponseDTO responseDTO = userService.getUserInfo(userInfo.getUserId());
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            log.warn("/api/user - GET", e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
 }

@@ -6,31 +6,26 @@ import lombok.*;
 import javax.persistence.*;
 
 @Getter @Setter
-@ToString @EqualsAndHashCode(of = "recipeId")
+@ToString
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-public class Recipe {
 
+@Entity
+@Table(name = "tbl_like")
+public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int recipeId;
-
-    private String name;
-
-    private String way; // 조리방법
-
-    private String type; // 요리종류
-
-    private String imgSrc;
-
-    private boolean done; // 좋아요 여부
+    @Column(name = "like_id")
+    private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-
+    //    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "recipe_name")
+    private String recipeName; // 프론트에서 받아서 넣기
 
 }

@@ -6,11 +6,9 @@ import com.example.demo.auth.TokenProvider;
 import com.example.demo.auth.TokenUserInfo;
 import com.example.demo.mail.service.MailService;
 import com.example.demo.userapi.dto.request.LoginRequestDTO;
-import com.example.demo.userapi.dto.request.UserRequestSignUpDTO;
-import com.example.demo.userapi.dto.response.KakaoUserDTO;
-import com.example.demo.userapi.dto.response.LoginResponseDTO;
-import com.example.demo.userapi.dto.response.NaverUserDTO;
-import com.example.demo.userapi.dto.response.UserSignUpResponseDTO;
+import com.example.demo.userapi.dto.request.UserModifyRequestDTO;
+import com.example.demo.userapi.dto.request.UserSignUpRequestDTO;
+import com.example.demo.userapi.dto.response.*;
 import com.example.demo.userapi.entity.LoginType;
 import com.example.demo.userapi.entity.SnsLogin;
 import com.example.demo.userapi.entity.User;
@@ -67,7 +65,7 @@ public class UserService {
 
 
 
-    public UserSignUpResponseDTO create(final UserRequestSignUpDTO dto, final String uploadedFilePath) {
+    public UserSignUpResponseDTO create(final UserSignUpRequestDTO dto) {
         String email = dto.getEmail();
 
         if (isDuplicate(email)){
@@ -80,7 +78,7 @@ public class UserService {
         dto.setPassword(encoded);
 
         // dto를 User Entity로 변환해서 저장
-        User saved = userRepository.save(dto.toEntity(uploadedFilePath));
+        User saved = userRepository.save(dto.toEntity());
         log.info("회원 가입 정상 수행됨! - saved user - {}", saved);
 
         return new UserSignUpResponseDTO(saved);
@@ -376,10 +374,12 @@ public class UserService {
 
         // 요청 헤더 설정
         HttpHeaders headers = new HttpHeaders();
-        headers.add("grant_type", "authorization_code");
+        //headers.add("grant_type", "authorization_code");
 
         // 요청 바디(파라미터) 설정
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        System.out.println("NAVER_CLIENT_ID = " + NAVER_CLIENT_ID);
+        System.out.println("NAVER_CLIENT_SECRET = " + NAVER_CLIENT_SECRET);
         params.add("grant_type", "authorization_code"); // 발급
         params.add("client_id", NAVER_CLIENT_ID); // 애플리케이션 등록 시 발급받은 Client ID 값
         params.add("client_secret", NAVER_CLIENT_SECRET); // 애플리케이션 등록 시 발급받은 Client secret 값
@@ -412,7 +412,7 @@ public class UserService {
 
     public String emailAuthenticate(String email) {
         String authcode = String.valueOf(makeRandomNumber());
-        //mailService.sendEmail(email, "1terface 인증코드입니다.", authcode);
+        //mailService.sendEmail(email, "1nterface 회원가입 인증코드입니다.", authcode);
 
         return tokenEmailCheckProvider.createToken(email, authcode, false);
     }
@@ -440,5 +440,51 @@ public class UserService {
         System.out.println("인증번호: " + checkNum);
 
         return checkNum;
+    }
+
+    public UserModifyResponseDTO modify(String userId, UserModifyRequestDTO requestDTO) {
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new IllegalArgumentException("해당되는 유저가 없습니다.")
+        );
+
+        String password = requestDTO.getPassword();
+        String address = requestDTO.getAddress();
+
+        if (password == null && address == null) {
+            throw new IllegalArgumentException("변경할 정보가 없습니다.");
+        }
+
+        if (password != null) {
+            password = password.trim();
+            if (!password.isEmpty()) {
+                user.setPassword(passwordEncoder.encode(password));
+            }
+        }
+
+        if (address != null) {
+            address = address.trim();
+            if (!address.isEmpty()) {
+                user.setUserAddress(address);
+            }
+        }
+
+        userRepository.save(user);
+
+        return UserModifyResponseDTO.builder()
+                .name(user.getUserName())
+                .email(user.getEmail())
+                .address(user.getUserAddress()).build();
+    }
+
+    public UserInfoResponseDTO getUserInfo(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new IllegalArgumentException("해당되는 유저가 없습니다.")
+        );
+
+        return UserInfoResponseDTO.builder()
+                .name(user.getUserName())
+                .email(user.getEmail())
+                .address(user.getUserAddress())
+                .build();
     }
 }

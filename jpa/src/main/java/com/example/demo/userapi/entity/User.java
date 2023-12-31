@@ -26,12 +26,14 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email; //로그인시 아이디처럼 사용
 
+    @Setter
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
     private String userName;
 
+    @Setter
     private String userAddress;
 
     @CreationTimestamp
