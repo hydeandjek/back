@@ -1,11 +1,12 @@
 package com.example.demo.shareapi.service;
 
 import com.example.demo.auth.TokenUserInfo;
-import com.example.demo.boardapi.repository.CommentRepository;
-import com.example.demo.shareapi.dto.ApproveDateDTO;
-import com.example.demo.shareapi.dto.ShareDetailResponseDTO;
-import com.example.demo.shareapi.dto.ShareRequestDTO;
-import com.example.demo.shareapi.dto.ShareResponseDTO;
+import com.example.demo.shareapi.dto.request.ApproveDateDTO;
+import com.example.demo.shareapi.dto.response.ShareCommentResponseDTO;
+import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
+import com.example.demo.shareapi.dto.request.ShareRequestDTO;
+import com.example.demo.shareapi.dto.response.ShareResponseDTO;
+import com.example.demo.shareapi.dto.response.ShareSetApprovalResponseDTO;
 import com.example.demo.shareapi.entity.Images;
 import com.example.demo.shareapi.entity.Share;
 import com.example.demo.shareapi.entity.ShareComment;
@@ -50,7 +51,6 @@ public class ShareService {
             ShareResponseDTO dto = ShareResponseDTO.builder()
                                         .id(board.getShareId())
                                         .title(board.getTitle())
-//                                        .category(category)
                                         .regDate(board.getRegDate())
                                         .approvalDate(null)
                                         .userId(board.getUser().getId())
@@ -62,21 +62,68 @@ public class ShareService {
         return dtoList;
     }
 
-    public ShareResponseDTO setApprovalDate(int shareId, ApproveDateDTO dto) {
+    public List<ShareResponseDTO> getNotYetApprovedBoardList() {
+//        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
+//        List<Share> boardList = shareRepository.findAll();
+        List<Share> approvedShares = shareRepository.findYetApprovedShares();
+
+        List<ShareResponseDTO> dtoList = new ArrayList<>();
+        for(Share board : approvedShares){
+            List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
+            String filePath = imagesList.get(0).getFilePath(); //게시글id에 따른 첫번째 이미지의 경로
+
+            int countedComment = shareCommentRepository.countByBoard(board.getShareId());
+
+            ShareResponseDTO dto = ShareResponseDTO.builder()
+                    .id(board.getShareId())
+                    .title(board.getTitle())
+                    .regDate(board.getRegDate())
+                    .approvalDate(null)
+                    .userId(board.getUser().getId())
+                    .imageUrl(filePath)
+                    .commentCount(countedComment)
+                    .build();
+            dtoList.add(dto);
+        }
+        return dtoList;
+    }
+
+    public ShareSetApprovalResponseDTO setApprovalDate(int shareId, ApproveDateDTO dto) {
         Share share = shareRepository.findById(shareId).orElseThrow(
                 () -> new IllegalArgumentException("해당 id의 게시글이 없습니다.")
         );
+        log.info("승인 여부 확인 : {}, 승인일: {}", share.isApprovalFlag(), share.getApprovalDate());
         share.setApprovalDate(dto.getApproveDate());
+        share.setApprovalFlag(true);
 
-        return ShareResponseDTO.builder()
+        List<Images> imagesList = imageRepository.findAllByBoardId(shareId);
+        List<String> imgUrlList = new ArrayList<>();
+        for(Images images:imagesList){
+            imgUrlList.add(images.getFilePath());
+        }
+
+        List<ShareComment> shareCommentList = shareCommentRepository.findAllByBoardId(shareId);
+        List<ShareCommentResponseDTO> shareCommentResponseDTOList = new ArrayList<>();
+        for(ShareComment shareComment:shareCommentList){
+            ShareCommentResponseDTO shareCommentResponseDTO = ShareCommentResponseDTO.builder()
+                    .content(shareComment.getContent())
+                    .regDate(shareComment.getRegDate())
+                    .userId(shareComment.getUser().getId())
+                    .boardId(shareComment.getShare().getShareId())
+                    .build();
+            shareCommentResponseDTOList.add(shareCommentResponseDTO);
+        }
+
+        return ShareSetApprovalResponseDTO.builder()
                 .id(share.getShareId())
                 .title(share.getTitle())
 //                                        .category(category)
                 .regDate(share.getRegDate())
-                .approvalDate(share.getApprovalDate())
                 .userId(share.getUser().getId())
-//                .imageUrl(filePath)
-//                .commentCount(countedComment)
+                .approvalDate(share.getApprovalDate())
+                .approvalFlag(share.isApprovalFlag())
+                .imageUrl(imgUrlList)
+                .commentCount(shareCommentResponseDTOList.size()) // 댓글 수
                 .build();
     }
 
@@ -84,19 +131,87 @@ public class ShareService {
         Share share = shareRepository.findById(id).orElseThrow(
                 ()-> new IllegalArgumentException("해당 id의 나눔 게시글은 없습니다.")
         );
+        // 게시글의 이미지들 리스트
+        List<Images> imagesList = imageRepository.findAllByBoardId(id);
+//        for (Images images : imagesList){
+//            Images img = Images
+//                    .builder()
+//                    .filePath(images.getFilePath())
+//                    .build();
+//
+//        } // 이들의 경로 가진 Images 객체 생성.
+        List<ShareComment> shareCommentList = shareCommentRepository.findAllByBoardId(id);
+
+        List<ShareCommentResponseDTO> shareCommentResponseDTOList = new ArrayList<>();
+        for(ShareComment shareComment:shareCommentList){
+            ShareCommentResponseDTO shareCommentResponseDTO = ShareCommentResponseDTO.builder()
+                    .content(shareComment.getContent())
+                    .regDate(shareComment.getRegDate())
+                    .userId(shareComment.getUser().getId())
+                    .boardId(shareComment.getShare().getShareId())
+                    .build();
+            shareCommentResponseDTOList.add(shareCommentResponseDTO);
+        }
+
 
         ShareDetailResponseDTO dto = ShareDetailResponseDTO.builder()
                 .id(share.getShareId())
                 .title(share.getTitle())
                 .content(share.getContent())
-//                .attachmentUrls(
-//                        share.getUploadImages()
-//                                .stream()
-//                                .map((images)->images.getFilePath())
-//                                .collect(Collectors.toList())
-//                )
+                .uploadImages(
+                        imagesList // 각 이미지들은 filePath 가짐
+
+                )
                 // Images 엔티티의 파일저장경로(스트링) 리스트 괄호안에 넣기
                 .regDate(share.getRegDate())
+                .approvalDate(share.getApprovalDate())
+                .comments(shareCommentResponseDTOList) // 코멘트 리스트
+                .userId(share.getUser().getId())
+                .approvalFlag(share.isApprovalFlag())
+                .build();
+
+        return dto;
+    }
+
+    public ShareDetailResponseDTO getBoardOfAdmin(int id) {
+        Share share = shareRepository.findByIdYetApprovedShares(id).orElseThrow(
+                ()-> new IllegalArgumentException("해당 id의 나눔 게시글은 없습니다.")
+        );
+        // 게시글의 이미지들 리스트
+        List<Images> imagesList = imageRepository.findAllByBoardId(id);
+//        for (Images images : imagesList){
+//            Images img = Images
+//                    .builder()
+//                    .filePath(images.getFilePath())
+//                    .build();
+//
+//        } // 이들의 경로 가진 Images 객체 생성.
+        List<ShareComment> shareCommentList = shareCommentRepository.findAllByBoardId(id);
+
+        List<ShareCommentResponseDTO> shareCommentResponseDTOList = new ArrayList<>();
+        for(ShareComment shareComment:shareCommentList){
+            ShareCommentResponseDTO shareCommentResponseDTO = ShareCommentResponseDTO.builder()
+                    .content(shareComment.getContent())
+                    .regDate(shareComment.getRegDate())
+                    .userId(shareComment.getUser().getId())
+                    .boardId(shareComment.getShare().getShareId())
+                    .build();
+            shareCommentResponseDTOList.add(shareCommentResponseDTO);
+        }
+
+
+        ShareDetailResponseDTO dto = ShareDetailResponseDTO.builder()
+                .id(share.getShareId())
+                .title(share.getTitle())
+                .content(share.getContent())
+                .uploadImages(
+                        imagesList // 각 이미지들은 filePath 가짐
+
+                )
+                // Images 엔티티의 파일저장경로(스트링) 리스트 괄호안에 넣기
+                .regDate(share.getRegDate())
+                .approvalDate(share.getApprovalDate())
+                .comments(shareCommentResponseDTOList) // 코멘트 리스트
                 .userId(share.getUser().getId())
                 .approvalFlag(share.isApprovalFlag())
                 .build();

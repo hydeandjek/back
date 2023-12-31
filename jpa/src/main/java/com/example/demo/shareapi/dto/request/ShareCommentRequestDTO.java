@@ -1,4 +1,4 @@
-package com.example.demo.shareapi.dto;
+package com.example.demo.shareapi.dto.request;
 
 import com.example.demo.shareapi.entity.Share;
 import com.example.demo.shareapi.entity.ShareComment;

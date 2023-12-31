@@ -1,5 +1,7 @@
-package com.example.demo.shareapi.dto;
+package com.example.demo.shareapi.dto.response;
 
+import com.example.demo.shareapi.entity.Share;
+import com.example.demo.userapi.entity.User;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,11 @@ public class ShareCommentResponseDTO {
     private String userId;
 
     private int boardId;
+
+//    public ShareCommentResponseDTO toEntity(User user, Share share){
+//        this.userId = user.getId();
+//        this.boardId = share.getShareId();
+//    }
 
 
 }

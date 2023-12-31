@@ -4,6 +4,7 @@ package com.example.demo.recipeapi.service;
 import com.example.demo.recipeapi.dto.LikeRequestDTO;
 import com.example.demo.recipeapi.dto.LikeResponseDTO;
 import com.example.demo.recipeapi.entity.Like;
+import com.example.demo.recipeapi.entity.QLike;
 import com.example.demo.recipeapi.repository.LikeRepository;
 import com.example.demo.recipeapi.repository.RecipeRepository;
 import com.example.demo.userapi.entity.User;
@@ -27,6 +28,8 @@ import javax.transaction.Transactional;
 
 import java.util.Map;
 import java.util.Objects;
+
+import static com.example.demo.recipeapi.entity.QLike.like;
 
 @Service
 @Slf4j
@@ -178,26 +181,39 @@ public class RecipeService {
 
         JSONObject cookrcp01 = (JSONObject) jsonObject.get("COOKRCP01");
         JSONArray recipe = (JSONArray) cookrcp01.get("row"); // 배열 추출
-        log.info("배열: {}", recipe);
+//        log.info("배열: {}", recipe);
 
         JSONObject recipeObj = (JSONObject) recipe.get(0); // 배열 안 객체 추출
         String rcpNm = (String) recipeObj.get("RCP_NM"); // 객체 안의 키의 값 추출
+
         log.info("좋아요 요청한 레시피: {}, 조회한 레시피: {}",likeRequestDTO.getRecipeName(), rcpNm);
 
-        if(!likeRequestDTO.getRecipeName().equals(rcpNm)){
-            throw new IllegalArgumentException("해당 레시피를 가져올 수 없습니다!");
-        }
+//        if(!likeRequestDTO.getRecipeName().equals(rcpNm)){
+//            throw new IllegalArgumentException("해당 레시피를 가져올 수 없습니다!");
+//        }
+        boolean dtoDone = likeRequestDTO.isDone();
+        System.out.println("likeRequestDTO.isDone(): " + dtoDone);
 
-
+        // 디비에서 조회
 //        Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).orElseThrow(null);
 
-        if(likeRequestDTO.isDone()){ // 요청으로 전달된 dto의 done 값이 true라면 (like는 null일 것)
-//            log.info("like는 null이어야 맞음: {}", like);
+        if(dtoDone){ // 요청으로 전달된 dto의 done 값이 true라면 (like는 null일 것)
+            // 디비에서 조회
+            boolean like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent();
+            log.info("like는 null이어야 맞음: {}", like);
+            if (like) throw new RuntimeException("like가 null이 아님");
+            
             Like saved = likeRepository.save(Like.builder().recipeName(likeRequestDTO.getRecipeName()).user(user).build());
+            log.info("table saved!!!: {}", saved);
         } else {
-            Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName());
-            log.info("like는 null이 아니어야 맞음: {}", like);
-            likeRepository.delete(like);
+            // 디비에서 조회
+            boolean likeCheck = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent();
+            log.info("like는 null이 아니어야 맞음: {}", likeCheck);
+            if (!likeCheck) throw new RuntimeException("like가 null");
+            Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).orElseThrow();
+            log.info("전달받은 dto의 done값은 false여야 맞음: {}", likeRequestDTO.isDone());
+            likeRepository.delete(Objects.requireNonNull(like));
+            log.info("table deleted!!!");
         }
 
         return LikeResponseDTO.builder()

@@ -1,10 +1,15 @@
 package com.example.demo.shareapi.api;
 
 import com.example.demo.auth.TokenUserInfo;
-import com.example.demo.shareapi.dto.*;
+import com.example.demo.shareapi.dto.request.ApproveDateDTO;
+import com.example.demo.shareapi.dto.request.ShareCommentRequestDTO;
+import com.example.demo.shareapi.dto.request.ShareRequestDTO;
+import com.example.demo.shareapi.dto.response.ShareCommentResponseDTO;
+import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
+import com.example.demo.shareapi.dto.response.ShareResponseDTO;
+import com.example.demo.shareapi.dto.response.ShareSetApprovalResponseDTO;
 import com.example.demo.shareapi.service.ShareCommentService;
 import com.example.demo.shareapi.service.ShareService;
-import com.example.demo.userapi.entity.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,9 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.management.relation.RoleList;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -48,18 +51,29 @@ public class ShareController {
 //    @AuthenticationPrincipal(role = Role.ADMIN)
     public ResponseEntity<?> getAdminBoardList(@AuthenticationPrincipal TokenUserInfo userInfo){
         log.info("/donation/approval : GET - ADMIN의 share board List Request");
-        List<ShareResponseDTO> boardList = shareService.getBoardList();
+        List<ShareResponseDTO> boardList = shareService.getNotYetApprovedBoardList();
 
         return ResponseEntity.ok().body(boardList);
     }
 
     // 승인할 게시글 상세보기 요청 처리
+    @GetMapping("/approval/{board_id}")
+    public ResponseEntity<?> getNotYetApproveBoard(@AuthenticationPrincipal TokenUserInfo userInfo,
+                                                   @PathVariable("board_id") int id){
+        log.info("/donation/approval/{} GET - ADMIN의 share board Detail Request", id);
+        ShareDetailResponseDTO responseDTO = shareService.getBoardOfAdmin(id);
+        return ResponseEntity.ok().body(responseDTO);
+    }
 
     // 승인 요청 처리 : 승인된 날짜 받아서 넣고 해당 글 리턴
-    @PostMapping("/approval/complete/{share_id}")
-    public  ResponseEntity<?> approve(@PathVariable("share_id") int shareId, ApproveDateDTO dto){
+    @PostMapping("/approval/completecom/{share_id}")
+    public  ResponseEntity<?> approve(
+            @AuthenticationPrincipal TokenUserInfo userInfo,
+            @PathVariable("share_id") int shareId,
+            ApproveDateDTO dto
+    ){
         log.info("/donation/approval/complete : POST - ADMIN의 승인 Request");
-        ShareResponseDTO board = shareService.setApprovalDate(shareId, dto);
+        ShareSetApprovalResponseDTO board = shareService.setApprovalDate(shareId, dto);
 
         return ResponseEntity.ok().body(board);
     }
@@ -68,10 +82,9 @@ public class ShareController {
     /**************************************************************************/
 
     // 게시글 상세보기 요청 처리
-    @GetMapping("/{category}/{id}")
-    public ResponseEntity<?> getBoard(@PathVariable String category,
-                                      @PathVariable int id){
-        log.info("/api/onelife-board/{}/{} GET - board Detail Request", category, id);
+    @GetMapping("/{board_id}")
+    public ResponseEntity<?> getBoard(@PathVariable("board_id") int id){
+        log.info("/donation/{} GET - share board Detail Request", id);
         ShareDetailResponseDTO responseDTO = shareService.getBoard(id);
         return ResponseEntity.ok().body(responseDTO);
     }

@@ -1,4 +1,4 @@
-package com.example.demo.shareapi.dto;
+package com.example.demo.shareapi.dto.request;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
