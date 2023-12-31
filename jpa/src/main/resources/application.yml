@@ -39,3 +39,4 @@ springdoc:
   swagger-ui:
     path: /myapi.html
 
+
