@@ -26,7 +26,7 @@ public class ShareSetApprovalResponseDTO {
     private List<String> imageUrl;
 //    private List<Images> uploadImages;
 
-    private LocalDateTime approvalDate;
+    private String approvalDate;
 
     private boolean approvalFlag;
 
