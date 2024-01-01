@@ -125,6 +125,15 @@ public class QnaController {
     ) {
         log.info("aaaaaaaaaaaaaaaaaaaaaaaaa{}", userInfo);
         log.info("/api/qna-board/{} POST - board Register Request", requestDTO);
+
+        if(result.hasErrors()) {
+            log.warn("DTO 검증 에러 발생: {}", result.getFieldError());
+            return ResponseEntity
+                    .badRequest() // 400
+                    .body(result.getFieldError());
+        }
+
+
         CommentDetailResponseDTO addcomment = qnaService.addcomment(requestDTO, userInfo, boardId);
 
         return ResponseEntity.ok().body(addcomment);

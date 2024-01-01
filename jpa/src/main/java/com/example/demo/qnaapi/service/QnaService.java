@@ -17,12 +17,11 @@ import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,23 +46,22 @@ public class QnaService {
     // 모든 게시물 정보
     public List<BoardDetailResponseDTO> getBoardList() {
 
-        List<QuestionBoard> all = boardRepository.findAll();
+        List<QuestionBoard> all = boardRepository.findAll(Sort.by("regDate").descending());
 
         log.info(all.toString());
         List<BoardDetailResponseDTO> boardDetailList = new ArrayList<>();
-        int i = 0;
 
-
+        int count = all.size();
         for (QuestionBoard questionBoard : all) {
             BoardDetailResponseDTO build = BoardDetailResponseDTO.builder()
-                    .rowNumber(i += 1)
+                    .rowNumber(count--)
                     .boardId(questionBoard.getBoardId())
                     .title(questionBoard.getTitle())
                     .content(questionBoard.getContent())
                     .regDate(questionBoard.getRegDate())
                     .updateDate(questionBoard.getUpdateDate())
                     .userId(questionBoard.getUser().getId())
-                    .userName((questionBoard.getUser().getUserName()))
+                    .userName(questionBoard.getUser().getUserName())
                     .build();
 
             boardDetailList.add(build);
@@ -81,16 +79,16 @@ public class QnaService {
         QuestionBoard allById = boardRepository.findById(id);
         log.info("yyyyyyyyyyy{}",allById);
 
-        String id1 = allById.getUser().getId();
+        User user = allById.getUser();
 
         BoardDetailResponseDTO build = BoardDetailResponseDTO.builder()
                 .boardId(id)
+                .userName(user.getUserName())
                 .title(allById.getTitle())
                 .content(allById.getContent())
                 .regDate(allById.getRegDate())
                 .regDate(allById.getUpdateDate())
-                .userId(id1)
-                .userName(allById.getUser().getUserName())
+                .userId(user.getId())
                 .build();
 
         log.info("yyyyyyyyyyy{}",build);
@@ -137,12 +135,12 @@ public class QnaService {
 
             BoardDetailResponseDTO dto = BoardDetailResponseDTO.builder()
                     .userId(userInfo.getUserId())
+                    .userName(user.getUserName())
                     .updateDate(LocalDateTime.now())
                     .boardId(id)
                     .content(save.getContent())
                     .regDate(allById.getRegDate())
                     .title(requestDTO.getTitle())
-                    .userName(allById.getUser().getUserName())
                     .build();
             log.info("게시글 수정 완료!");
             return dto;
@@ -191,8 +189,8 @@ public class QnaService {
                         .content(comment.getContent())
                         .regDate(comment.getUpdateDate()) // 수정된 댓글이라면 수정날짜 넣기
                         .userId(comment.getUser().getId())
-                        .boardId(comment.getBoard().getBoardId())
                         .userName(comment.getUser().getUserName())
+                        .boardId(comment.getBoard().getBoardId())
                         .build();
 
             } else {
@@ -201,8 +199,8 @@ public class QnaService {
                         .content(comment.getContent())
                         .regDate(comment.getRegDate()) // 수정안됐다면 등록 날짜 넣기
                         .userId(comment.getUser().getId())
-                        .boardId(comment.getBoard().getBoardId())
                         .userName(comment.getUser().getUserName())
+                        .boardId(comment.getBoard().getBoardId())
                         .build();
 
             }
@@ -259,11 +257,11 @@ public class QnaService {
             entity1 = CommentDetailResponseDTO.builder()
                     .boardId(bycommentId.getBoard().getBoardId())
                     .userId(bycommentId.getUser().getId())
+                    .userName(bycommentId.getUser().getUserName())
                     .commentId(bycommentId.getCommentId())
                     .content(requestDTO.getContent())
                     .regDate(bycommentId.getRegDate())
                     .updateDate(LocalDateTime.now())
-                    .userName(bycommentId.getUser().getUserName())
                     .build();
 
             log.info("게시물 댓글 수정 완료! 내용: {}", entity1);
