@@ -37,20 +37,22 @@ public class CommentService {
             CommentResponseDTO dto;
             if(comment.getUpdateDate() != null){
                 dto = CommentResponseDTO.builder()
-//                        .commentId(comment.getCommentId())
+                        .commentId(comment.getCommentId())
                         .content(comment.getContent())
                         .regDate(comment.getUpdateDate()) // 수정된 댓글이라면 수정날짜 넣기
                         .userId(comment.getUser().getId())
                         .boardId(comment.getBoard().getBoardId())
+                        .userName(comment.getUser().getUserName())
                         .build();
 
             } else {
                 dto = CommentResponseDTO.builder()
-//                        .commentId(comment.getCommentId())
+                        .commentId(comment.getCommentId())
                         .content(comment.getContent())
                         .regDate(comment.getRegDate()) // 수정안됐다면 등록 날짜 넣기
                         .userId(comment.getUser().getId())
                         .boardId(comment.getBoard().getBoardId())
+                        .userName(comment.getUser().getUserName())
                         .build();
 
             }
@@ -76,11 +78,15 @@ public class CommentService {
         Comment saved = commentRepository.save(requestDTO.toEntity(user, board));
         log.info("할 일 저장 완료! saved: {}", saved);
 
+        log.info("aaaai", saved);
+
         return CommentResponseDTO.builder()
                 .content(saved.getContent())
                 .userId(saved.getUser().getId())
                 .regDate(saved.getRegDate())
-                .boardId(board.getBoardId())
+                .boardId(saved.getBoard().getBoardId())
+                .userName(saved.getUser().getUserName())
+                .commentId(saved.getCommentId())
                 .build();
 
 

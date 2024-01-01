@@ -26,5 +26,5 @@ public class BoardDetailResponseDTO {
 
     private String userId;
 
-
+    private String userName;
 }
