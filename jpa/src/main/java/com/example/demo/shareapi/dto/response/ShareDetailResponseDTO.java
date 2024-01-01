@@ -13,8 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ShareDetailResponseDTO {
-    // 번호, 게시판카테고리, 제목, 내용, 날짜, 글쓴이 필요
+public class ShareDetailResponseDTO { // 상세 보기 요청 응답 시 사용
     private int id;
 
     private String title;
@@ -27,7 +26,7 @@ public class ShareDetailResponseDTO {
 
     private LocalDateTime regDate;
 
-    private LocalDateTime approvalDate;
+    private String approvalDate;
 
     private String userId;
 

@@ -1,9 +1,11 @@
 package com.example.demo.shareapi.api;
 
 import com.example.demo.auth.TokenUserInfo;
-import com.example.demo.shareapi.dto.request.ApproveDateDTO;
+import com.example.demo.shareapi.dto.request.ApprovalDateDTO;
+
 import com.example.demo.shareapi.dto.request.ShareCommentRequestDTO;
 import com.example.demo.shareapi.dto.request.ShareRequestDTO;
+import com.example.demo.shareapi.dto.request.ShareUpdateRequestDTO;
 import com.example.demo.shareapi.dto.response.ShareCommentResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareResponseDTO;
@@ -65,21 +67,19 @@ public class ShareController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    // 승인 요청 처리 : 승인된 날짜 받아서 넣고 해당 글 리턴
-    @PostMapping("/approval/completecom/{share_id}")
+    // 승인 요청 처리 : 승인된 날짜 넣고 해당 글 리턴
+    @PostMapping("/approval/complete/{share_id}")
     public  ResponseEntity<?> approve(
             @AuthenticationPrincipal TokenUserInfo userInfo,
-            @PathVariable("share_id") int shareId,
-            ApproveDateDTO dto
+            @PathVariable("share_id") int shareId
     ){
         log.info("/donation/approval/complete : POST - ADMIN의 승인 Request");
-        ShareSetApprovalResponseDTO board = shareService.setApprovalDate(shareId, dto);
+//        log.info("컨트롤러에서 받은 ApproveDateDTO: {}", dto);
+        ShareSetApprovalResponseDTO board = shareService.setApprovalDate(shareId);
 
         return ResponseEntity.ok().body(board);
     }
-
-
-    /**************************************************************************/
+    /************************** 관리자의 요청 처리 끝 ***********************************/
 
     // 게시글 상세보기 요청 처리
     @GetMapping("/{board_id}")
@@ -137,16 +137,23 @@ public class ShareController {
 
 
     // 게시글 수정
-    @RequestMapping(method = {RequestMethod.PUT, RequestMethod.PATCH}, value = "/{category}/{id}")
-//    @PutMapping("/{category}/{id}")
+    @RequestMapping(
+            method = {RequestMethod.PUT, RequestMethod.PATCH},
+            value = "/{id}",
+            consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE }
+    )
     public ResponseEntity<?> updateBoard(
             @AuthenticationPrincipal TokenUserInfo userInfo,
-            @Validated @RequestBody ShareRequestDTO requestDTO,
+            @RequestPart(value = "uploadImages", required = false) List<MultipartFile> files,
+            @Validated @RequestPart ShareUpdateRequestDTO requestDTO,
             @PathVariable int id,
             BindingResult result,
             HttpServletRequest request // 요청 방식 구분
+
+
+
     ){
-        log.info("/api/onelife-board {}  - board Update Request", request.getMethod());
+        log.info("/donation/{} : {} - share board Update Request",id, request.getMethod());
         log.info("modifying dto: {}, id: {}", requestDTO, id);
 
         if(result.hasErrors()){
@@ -155,10 +162,10 @@ public class ShareController {
 
         try {
             ShareDetailResponseDTO responseDTO
-                    = shareService.updateBoard(requestDTO, userInfo.getUserId(), id);
+                    = shareService.updateBoard(requestDTO, userInfo.getUserId(), id, files);
             return ResponseEntity.ok().body(responseDTO);
 
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return ResponseEntity
                     .internalServerError()
                     .body(e.getMessage());
@@ -169,15 +176,15 @@ public class ShareController {
 
 
     // 게시글 삭제
-    @DeleteMapping("/{category}/{id}")
-    public ResponseEntity<?> deleteBoard(@AuthenticationPrincipal TokenUserInfo userInfo,
-                              @PathVariable int id,
-                              @PathVariable String category){
-        log.info("/api/onelife-board/{}/{} DELETE  - id가 {}인 board Delete Request",
-                category, id, id);
+    @DeleteMapping("/{board_id}")
+    public ResponseEntity<?> deleteBoard(
+            @AuthenticationPrincipal TokenUserInfo userInfo,
+            @PathVariable("board_id") int id){
+        log.info("/donation/{} : DELETE  - id가 {}인 board Delete Request",
+                 id, id);
 
         try {
-            ShareResponseDTO responseDTO = shareService.deleteBoard(id, userInfo.getUserId());
+            ShareDetailResponseDTO responseDTO = shareService.deleteBoard(id, userInfo);
             return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,18 +194,12 @@ public class ShareController {
 
     }
 
-
-
-
-
-
-
     /************************** 댓글 요청 처리 ***************************/
     // 댓글 목록 조회 요청 처리
-    @GetMapping("/{category}/{b_id}/reply")
-    public ResponseEntity<?> getCommentList(@PathVariable String category, @PathVariable("b_id") int boardId){
-        log.info("/api/onelife-board/{}/{}/reply GET - id가 {}인 board에 달린 댓글 List Request"
-        ,category, boardId, boardId);
+    @GetMapping("/{b_id}/reply")
+    public ResponseEntity<?> getCommentList(@PathVariable("b_id") int boardId){
+        log.info("/donation/{}/reply : GET - id가 {}인 board에 달린 댓글 List Request",
+        boardId, boardId);
         List<ShareCommentResponseDTO> commentList = shareCommentService.getCommentList(boardId);
 
         return ResponseEntity.ok().body(commentList);
@@ -212,7 +213,7 @@ public class ShareController {
             @Validated @RequestBody ShareCommentRequestDTO requestDTO,
             BindingResult result
     ){
-        log.info("/api/onelife-board POST - comment Register Request");
+        log.info("/donation/{}/reply-board POST - comment Register Request", boardId);
         log.info("RequestDTO: {} ", requestDTO);
         log.info("TokenUserInfo: {} ", userInfo);
 
@@ -239,17 +240,16 @@ public class ShareController {
     }
 
     // 댓글 수정
-    @PutMapping("/{category}/{b_id}/reply/{r_id}")
+    @PutMapping("/{b_id}/reply/{r_id}")
     public ResponseEntity<?> updateComment(
             @AuthenticationPrincipal TokenUserInfo userInfo,
             @Validated @RequestBody ShareCommentRequestDTO requestDTO,
-            @PathVariable String category,
             @PathVariable("b_id") int boardId,
             @PathVariable("r_id") int commentId,
             BindingResult result
     ){
-        log.info("/api/onelife-board/{}/{}/reply/{}  - comment Update Request",
-                category, boardId, commentId);
+        log.info("/donation/{}/reply/{}  - comment Update Request",
+             boardId, commentId);
         log.info("modifying dto: {}, id: {}", requestDTO, commentId);
 
         if(result.hasErrors()){
@@ -270,13 +270,11 @@ public class ShareController {
 
 
     // 댓글 삭제
-    @DeleteMapping("/{category}/{b_id}/reply/{r_id}")
+    @DeleteMapping("/{b_id}/reply/{r_id}")
     public ResponseEntity<?> deleteComment(@AuthenticationPrincipal TokenUserInfo userInfo,
-                                           @PathVariable String category,
                                            @PathVariable("b_id") int boardId,
                                            @PathVariable("r_id") int commentId){
-        log.info("/api/onelife-board/{}/{}/reply/{} DELETE  - comment Delete Request",
-                category, boardId, commentId);
+        log.info("/donation/{}/reply/{} : DELETE  - comment Delete Request", boardId, commentId);
 
         try {
             ShareCommentResponseDTO responseDTO
@@ -287,5 +285,17 @@ public class ShareController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+    /************************** 마이페이지 요청 *****************************/
+    // 사용자의 마이페이지에서 미승인된 게시물 목록 조회 요청 처리
+    @GetMapping("/mypage")
+    public ResponseEntity<?> getMyPageShareList(@AuthenticationPrincipal TokenUserInfo userInfo){
+        log.info("/donation/mypage : GET - My share board List Request");
+        List<ShareResponseDTO> boardList = shareService.getMyNotYetApprovedBoardList(userInfo);
+
+        return ResponseEntity.ok().body(boardList);
+    }
+
+    // 미승인된 게시물 상세보기 요청 처리
 
 }

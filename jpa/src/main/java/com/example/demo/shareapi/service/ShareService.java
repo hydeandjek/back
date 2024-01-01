@@ -1,7 +1,10 @@
 package com.example.demo.shareapi.service;
 
 import com.example.demo.auth.TokenUserInfo;
-import com.example.demo.shareapi.dto.request.ApproveDateDTO;
+import com.example.demo.boardapi.repository.BoardRepository;
+import com.example.demo.shareapi.dto.request.ApprovalDateDTO;
+
+import com.example.demo.shareapi.dto.request.ShareUpdateRequestDTO;
 import com.example.demo.shareapi.dto.response.ShareCommentResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
 import com.example.demo.shareapi.dto.request.ShareRequestDTO;
@@ -13,6 +16,7 @@ import com.example.demo.shareapi.entity.ShareComment;
 import com.example.demo.shareapi.repository.ImageRepository;
 import com.example.demo.shareapi.repository.ShareCommentRepository;
 import com.example.demo.shareapi.repository.ShareRepository;
+import com.example.demo.userapi.entity.Role;
 import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +27,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -65,10 +72,10 @@ public class ShareService {
     public List<ShareResponseDTO> getNotYetApprovedBoardList() {
 //        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
 //        List<Share> boardList = shareRepository.findAll();
-        List<Share> approvedShares = shareRepository.findYetApprovedShares();
+        List<Share> notApprovedShares = shareRepository.findYetApprovedShares();
 
         List<ShareResponseDTO> dtoList = new ArrayList<>();
-        for(Share board : approvedShares){
+        for(Share board : notApprovedShares){
             List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
             String filePath = imagesList.get(0).getFilePath(); //게시글id에 따른 첫번째 이미지의 경로
 
@@ -88,13 +95,73 @@ public class ShareService {
         return dtoList;
     }
 
-    public ShareSetApprovalResponseDTO setApprovalDate(int shareId, ApproveDateDTO dto) {
+    public List<ShareResponseDTO> getMyNotYetApprovedBoardList(TokenUserInfo userInfo) {
+//        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
+//        List<Share> boardList = shareRepository.findAll();
+        int countByUserApproved
+                = shareRepository.countByUserApproved(getUser(userInfo.getUserId()));
+        int countByUserYetApproved
+                = shareRepository.countByUserYetApproved(getUser(userInfo.getUserId()));
+
+        if(countByUserYetApproved > 0){
+            List<Share> allByUserYetApprovedShares
+                    = shareRepository.findAllByUserYetApprovedShares(getUser(userInfo.getUserId()));
+            List<ShareResponseDTO> dtoList = new ArrayList<>();
+            for(Share board : allByUserYetApprovedShares){
+                List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
+                String filePath = imagesList.get(0).getFilePath(); //게시글id에 따른 첫번째 이미지의 경로
+
+                int countedComment = shareCommentRepository.countByBoard(board.getShareId());
+
+                ShareResponseDTO dto = ShareResponseDTO.builder()
+                        .id(board.getShareId())
+                        .title(board.getTitle())
+                        .regDate(board.getRegDate())
+                        .approvalDate(null)
+                        .userId(board.getUser().getId())
+                        .imageUrl(filePath)
+                        .commentCount(countedComment)
+                        .build();
+                dtoList.add(dto);
+            }
+            return dtoList;
+        } else {
+            List<ShareResponseDTO> dtoList = new ArrayList<>();
+//            List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
+//            String filePath = imagesList.get(0).getFilePath(); //게시글id에 따른 첫번째 이미지의 경로
+//
+//            int countedComment = shareCommentRepository.countByBoard(board.getShareId());
+
+            ShareResponseDTO dto = ShareResponseDTO.builder()
+//                    .id(board.getShareId())
+                    .title("존재하지 않습니다.")
+//                    .regDate(board.getRegDate())
+//                    .approvalDate(null)
+//                    .approvalFlag(null)
+                    .userId(userInfo.getUserId())
+//                    .imageUrl(filePath)
+//                    .commentCount(countedComment)
+                    .build();
+            dtoList.add(dto);
+            return dtoList;
+
+        }
+
+
+
+
+    }
+
+    public ShareSetApprovalResponseDTO setApprovalDate(int shareId) {
         Share share = shareRepository.findById(shareId).orElseThrow(
                 () -> new IllegalArgumentException("해당 id의 게시글이 없습니다.")
         );
         log.info("승인 여부 확인 : {}, 승인일: {}", share.isApprovalFlag(), share.getApprovalDate());
-        share.setApprovalDate(dto.getApproveDate());
         share.setApprovalFlag(true);
+        LocalDateTime currentDate = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        String formattedDate = currentDate.format(formatter);
+        share.setApprovalDate(formattedDate);
 
         List<Images> imagesList = imageRepository.findAllByBoardId(shareId);
         List<String> imgUrlList = new ArrayList<>();
@@ -117,7 +184,6 @@ public class ShareService {
         return ShareSetApprovalResponseDTO.builder()
                 .id(share.getShareId())
                 .title(share.getTitle())
-//                                        .category(category)
                 .regDate(share.getRegDate())
                 .userId(share.getUser().getId())
                 .approvalDate(share.getApprovalDate())
@@ -299,50 +365,99 @@ public class ShareService {
     }
 
 
-    public ShareDetailResponseDTO updateBoard(final ShareRequestDTO requestDTO,
+    public ShareDetailResponseDTO updateBoard(final ShareUpdateRequestDTO requestDTO,
                                               final String userId,
-                                              int boardId) throws RuntimeException{
+                                              int boardId,
+                                              List<MultipartFile> files) throws RuntimeException, IOException {
         log.info("게시글 수정 서비스 작동!");
-        Share entityToBeApplied = requestDTO.toEntity(getUser(userId)); // 엔티티로 변환
 
+        // 수정 대상
         Share targetBoard = shareRepository.findById(boardId).orElseThrow(null);
 
-//        targetBoard.setCategory(entityToBeApplied.getCategory());
+        if(!userId.equals(targetBoard.getUser().getId())){
+           throw new RuntimeException("수정 권한이 없습니다.");
+       }
+
+        // 수정 반영할 것 엔티티로 변환
+        Share entityToBeApplied = requestDTO.toEntity(getUser(userId)); // 엔티티로 변환
+
+
+        if(!Objects.isNull(files)){ //유저가 이미지도 수정 요청했다면
+
+            imageRepository.deleteByBoardId(boardId); // 해당 게시글의 이미지들 삭제
+
+            for (MultipartFile file : files){
+                String originFileName = file.getOriginalFilename();
+                log.info("original file name: {}", originFileName);
+
+                long size = file.getSize();
+                log.info("size = {}", size);
+
+                String contentType = file.getContentType();
+                log.info("content type={}", contentType);
+
+                // 서버에 저장되는 경로 (나중에 -> AWS S3)
+                String filePath = "C:/test/final_project_file_upload/"+originFileName;
+
+                // 서버에 저장되는 이름 (파일명이 중복될 수 있으므로 서버에는 고유값으로 파일명 저장)
+                UUID uuid = UUID.randomUUID();
+                String serverFileName = uuid + originFileName;
+
+                Images images = new Images(originFileName, serverFileName, filePath, size);
+//                imagesArrayList.add(images);
+//                share.setUploadImages(imagesArrayList);
+
+                images.setShare(targetBoard); // 이미지를 게시글과 연결
+                imageRepository.save(images); // 이미지 테이블에 저장
+//
+                file.transferTo(new File(filePath)); // 로컬에 이미지 저장
+            }
+        }
+
         targetBoard.setTitle(entityToBeApplied.getTitle());
         targetBoard.setContent(entityToBeApplied.getContent());
 
         return getBoard(boardId); // dto로 변환 후 리턴
 
-
-//        targetBoard.ifPresent(boardRepository::save); // null 아닌 경우에만 실행.
-
-        // 수정 대상인 보드
-//        User user = getUser(userId);
-//        List<Board> boardList = boardRepository.findAllByUser(user);
-
-//        return getBoard(requestDTO.getCategory(), requestDTO.getBoardId());
-
-
     }
 
 
 
-    public ShareResponseDTO deleteBoard(int id, String userId) {
+    public ShareDetailResponseDTO deleteBoard(int id, TokenUserInfo userInfo) {
             Share board = shareRepository.findById(id).orElseThrow(
                     () -> new IllegalArgumentException("대상이 존재하지 않아 삭제 실패!")
             );
-            if(!userId.equals(board.getUser().getId())){
-                log.warn("작성자가 아니므로 삭제 불가");
+            if(userInfo.getRole() != Role.ADMIN
+                    && !userInfo.getUserId().equals(board.getUser().getId())){
+                log.warn("작성자가 아니므로 삭제 불가"); // 관리자 또는 작성자만이 삭제 가능!
                 throw new RuntimeException("작성 권한이 없습니다.");
             }
 
+        List<Images> imagesList = imageRepository.findAllByBoardId(id);
+        List<ShareComment> shareCommentList = shareCommentRepository.findAllByBoardId(id);
+
+        List<ShareCommentResponseDTO> shareCommentResponseDTOList = new ArrayList<>();
+        for(ShareComment shareComment:shareCommentList){
+            ShareCommentResponseDTO shareCommentResponseDTO = ShareCommentResponseDTO.builder()
+                    .content(shareComment.getContent())
+                    .regDate(shareComment.getRegDate())
+                    .userId(shareComment.getUser().getId())
+                    .boardId(shareComment.getShare().getShareId())
+                    .build();
+            shareCommentResponseDTOList.add(shareCommentResponseDTO);
+        }
+
             shareRepository.deleteById(id);
 
-            return ShareResponseDTO.builder()
+            return ShareDetailResponseDTO.builder()
                     .id(board.getShareId())
                     .title(board.getTitle())
-//                    .category(board.getCategory())
+                    .content(board.getContent())
                     .regDate(board.getRegDate())
+                    .uploadImages(imagesList)
+                    .comments(shareCommentResponseDTOList)
+                    .approvalDate(board.getApprovalDate())
+                    .approvalFlag(board.isApprovalFlag())
                     .userId(board.getUser().getId())
                     .build();
     }
