@@ -20,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +37,11 @@ public class QnaService {
     private final QnaCommentRepository commentRepository;
 
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+
+
 
 
     // 모든 게시물 정보
@@ -43,15 +51,19 @@ public class QnaService {
 
         log.info(all.toString());
         List<BoardDetailResponseDTO> boardDetailList = new ArrayList<>();
+        int i = 0;
+
 
         for (QuestionBoard questionBoard : all) {
             BoardDetailResponseDTO build = BoardDetailResponseDTO.builder()
+                    .rowNumber(i += 1)
                     .boardId(questionBoard.getBoardId())
                     .title(questionBoard.getTitle())
                     .content(questionBoard.getContent())
                     .regDate(questionBoard.getRegDate())
                     .updateDate(questionBoard.getUpdateDate())
                     .userId(questionBoard.getUser().getId())
+                    .userName((questionBoard.getUser().getUserName()))
                     .build();
 
             boardDetailList.add(build);
@@ -78,6 +90,7 @@ public class QnaService {
                 .regDate(allById.getRegDate())
                 .regDate(allById.getUpdateDate())
                 .userId(id1)
+                .userName(allById.getUser().getUserName())
                 .build();
 
         log.info("yyyyyyyyyyy{}",build);
@@ -129,6 +142,7 @@ public class QnaService {
                     .content(save.getContent())
                     .regDate(allById.getRegDate())
                     .title(requestDTO.getTitle())
+                    .userName(allById.getUser().getUserName())
                     .build();
             log.info("게시글 수정 완료!");
             return dto;
@@ -149,6 +163,9 @@ public class QnaService {
 
         if (allById.getUser().getId().toString().equals(userId)){
             log.info("성공성공성공");
+            Query query = entityManager.createQuery("DELETE FROM QuestionComment c WHERE c.board.boardId = :boardId");
+            query.setParameter("boardId", id);
+            query.executeUpdate();
             boardRepository.deleteById(id);
         }
     }
@@ -175,6 +192,7 @@ public class QnaService {
                         .regDate(comment.getUpdateDate()) // 수정된 댓글이라면 수정날짜 넣기
                         .userId(comment.getUser().getId())
                         .boardId(comment.getBoard().getBoardId())
+                        .userName(comment.getUser().getUserName())
                         .build();
 
             } else {
@@ -184,6 +202,7 @@ public class QnaService {
                         .regDate(comment.getRegDate()) // 수정안됐다면 등록 날짜 넣기
                         .userId(comment.getUser().getId())
                         .boardId(comment.getBoard().getBoardId())
+                        .userName(comment.getUser().getUserName())
                         .build();
 
             }
@@ -214,6 +233,7 @@ public class QnaService {
                 .commentId(entity.getCommentId())
                 .content(requestDTO.getContent())
                 .regDate(entity.getRegDate())
+                .userName(byId.getUser().getUserName())
                 .build();
 
 
@@ -243,6 +263,7 @@ public class QnaService {
                     .content(requestDTO.getContent())
                     .regDate(bycommentId.getRegDate())
                     .updateDate(LocalDateTime.now())
+                    .userName(bycommentId.getUser().getUserName())
                     .build();
 
             log.info("게시물 댓글 수정 완료! 내용: {}", entity1);

@@ -5,6 +5,11 @@ import com.example.demo.boardapi.entity.Comment;
 import com.example.demo.boardapi.repository.BoardRepository;
 import com.example.demo.userapi.entity.User;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -26,5 +31,8 @@ public class CommentRequestDTO {
                 .board(board)
                 .build();
     }
+
+
+
 
 }
