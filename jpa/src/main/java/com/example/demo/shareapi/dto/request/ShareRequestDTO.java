@@ -25,7 +25,7 @@ public class ShareRequestDTO {
     private String content;
 
 //    private List<String> attachmentUrls; // 이미지 url
-    private List<Images> uploadImages;
+//    private List<Images> uploadImages;
 
 //    private List<ShareCommentRequestDTO> comments;
 
@@ -38,8 +38,8 @@ public class ShareRequestDTO {
 //                .category(this.category)
                 .title(this.title)
                 .content(this.content)
-//                .uploadImages(this.uploadImages)
-
+//                .uploadImages(this.uploadImages) -->Images객체에서 수정하기
+                .approvalFlag(this.approvalFlag)
                 .user(user)
                 .build();
     }
