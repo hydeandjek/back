@@ -1,7 +1,14 @@
 package com.example.demo.recipeapi.service;
 
 
+import com.example.demo.recipeapi.dto.LikeRequestDTO;
+import com.example.demo.recipeapi.dto.LikeResponseDTO;
+import com.example.demo.recipeapi.entity.Like;
+import com.example.demo.recipeapi.entity.QLike;
+import com.example.demo.recipeapi.repository.LikeRepository;
 import com.example.demo.recipeapi.repository.RecipeRepository;
+import com.example.demo.userapi.entity.User;
+import com.example.demo.userapi.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -22,6 +29,8 @@ import javax.transaction.Transactional;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.example.demo.recipeapi.entity.QLike.like;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -29,6 +38,8 @@ import java.util.Objects;
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
 
     EntityManager em; // JPA 관리 핵심 객체
 
@@ -144,6 +155,92 @@ public class RecipeService {
 
     }
 
+    // 좋아요 기능
+    public LikeResponseDTO insert(final LikeRequestDTO likeRequestDTO,
+                                  final String userId)
+            throws Exception{
+        log.info("서비스 - dto: {}", likeRequestDTO);
+        log.info("서비스 - 찜 누른 유저: {}",userId);
+        // 유저만 좋아요할 수 있으므로 유저 조회
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new RuntimeException("회원 정보가 없습니다.")
+        );
 
+        // 좋아요한 레시피 조회
+        String reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/1/1"+"/RCP_NM="+likeRequestDTO.getRecipeName();
 
+        RestTemplate template = new RestTemplate();
+
+        String jsonString = template.getForObject(reqUri, String.class); // 스트링으로 받아야 그대로 받음.
+        log.info("레시피 리스트 요청 응답 데이터: {}", jsonString);
+
+        // api요청으로 받아온 json데이터의 요리 이름 추출
+        JSONParser jsonParser = new JSONParser();
+
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(jsonString); // 파싱
+
+        JSONObject cookrcp01 = (JSONObject) jsonObject.get("COOKRCP01");
+        JSONArray recipe = (JSONArray) cookrcp01.get("row"); // 배열 추출
+//        log.info("배열: {}", recipe);
+
+        JSONObject recipeObj = (JSONObject) recipe.get(0); // 배열 안 객체 추출
+        String rcpNm = (String) recipeObj.get("RCP_NM"); // 객체 안의 키의 값 추출
+
+        log.info("좋아요 요청한 레시피: {}, 조회한 레시피: {}",likeRequestDTO.getRecipeName(), rcpNm);
+
+//        if(!likeRequestDTO.getRecipeName().equals(rcpNm)){
+//            throw new IllegalArgumentException("해당 레시피를 가져올 수 없습니다!");
+//        }
+        boolean dtoDone = likeRequestDTO.isDone();
+        System.out.println("likeRequestDTO.isDone(): " + dtoDone);
+
+        // 디비에서 조회
+//        Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).orElseThrow(null);
+
+        if(dtoDone){ // 요청으로 전달된 dto의 done 값이 true라면 (like는 null일 것)
+            // 디비에서 조회
+            boolean like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent();
+            log.info("like는 null이어야 맞음: {}", like);
+            if (like) throw new RuntimeException("like가 null이 아님");
+            
+            Like saved = likeRepository.save(Like.builder().recipeName(likeRequestDTO.getRecipeName()).user(user).build());
+            log.info("table saved!!!: {}", saved);
+        } else {
+            // 디비에서 조회
+            boolean likeCheck = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent();
+            log.info("like는 null이 아니어야 맞음: {}", likeCheck);
+            if (!likeCheck) throw new RuntimeException("like가 null");
+            Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).orElseThrow();
+            log.info("전달받은 dto의 done값은 false여야 맞음: {}", likeRequestDTO.isDone());
+            likeRepository.delete(Objects.requireNonNull(like));
+            log.info("table deleted!!!");
+        }
+
+        return LikeResponseDTO.builder()
+                .done(likeRequestDTO.isDone())
+                .recipeName(likeRequestDTO.getRecipeName())
+                .userId(userId)
+                .build(); // 찜목록에서 추가되거나 삭제된 것을 응답.
+
+//        // 이미 좋아요되어있으면 에러 반환
+//        if (likeRepository.findByUserAndRecipe(user, recipe).isPresent()){
+//            //TODO 409에러로 변경
+//            throw new Exception("이미 좋아요한 레시피는 좋아요 할 수 없음!");
+//        }
+
+    }
+
+//    public void delete(LikeRequestDTO likeRequestDTO) {
+//        User user = userRepository.findById(String.valueOf(likeRequestDTO.getUserId()))
+//                .orElseThrow(() -> new NotFoundException("Could not found user id : " + likeRequestDTO.getUserId()));
+//
+//        Recipe recipe = recipeRepository.findById(Integer.valueOf(likeRequestDTO.getRecipeName()))
+//                .orElseThrow(() -> new NotFoundException("Could not found recipe id : " + likeRequestDTO.getRecipeName()));
+//
+//        Like like = likeRepository.findByUserAndRecipe(user, recipe)
+//                .orElseThrow(() -> new NotFoundException("Could not found like id"));
+//
+//        likeRepository.delete(like);
+
+//    }
 }
