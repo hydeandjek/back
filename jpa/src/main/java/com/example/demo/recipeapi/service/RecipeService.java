@@ -163,7 +163,7 @@ public class RecipeService {
         log.info("서비스 - 찜 누른 유저: {}",userId);
         // 유저만 좋아요할 수 있으므로 유저 조회
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("회원 정보가 없습니다.")
+                () -> new IllegalArgumentException("회원 정보가 없습니다.")
         );
 
         // 좋아요한 레시피 조회
@@ -199,17 +199,18 @@ public class RecipeService {
 
         if(dtoDone){ // 요청으로 전달된 dto의 done 값이 true라면 (like는 null일 것)
             // 디비에서 조회
-            boolean like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent();
-            log.info("like는 null이어야 맞음: {}", like);
-            if (like) throw new RuntimeException("like가 null이 아님");
+            boolean like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent(); //false=테이블에 없음
+            log.info("false여야 찜 테이블에 존재하지 않는 것: {}", like);
+            if (like) throw new RuntimeException("이미 찜한 레시피입니다!!!");
             
             Like saved = likeRepository.save(Like.builder().recipeName(likeRequestDTO.getRecipeName()).user(user).build());
             log.info("table saved!!!: {}", saved);
         } else {
             // 디비에서 조회
-            boolean likeCheck = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent();
-            log.info("like는 null이 아니어야 맞음: {}", likeCheck);
-            if (!likeCheck) throw new RuntimeException("like가 null");
+            boolean likeCheck = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent(); // true=테이블에 존재
+            log.info("true여야 테이블에 존재하는 것: {}", likeCheck);
+            if (!likeCheck) throw new RuntimeException("찜목록에 존재하지 않아 삭제 실패!!!");
+
             Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).orElseThrow();
             log.info("전달받은 dto의 done값은 false여야 맞음: {}", likeRequestDTO.isDone());
             likeRepository.delete(Objects.requireNonNull(like));

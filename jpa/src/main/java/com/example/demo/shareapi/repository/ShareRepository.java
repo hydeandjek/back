@@ -25,28 +25,32 @@ public interface ShareRepository extends JpaRepository<Share, Integer> {
     @Query("SELECT s FROM Share s WHERE s.user = :user")
     List<Share> findAllByUser(@Param("user") User user);
 
-    // 승인여부가 false이고 특정회원이 작성한 글 목록 리턴
-    @Query("SELECT s FROM Share s WHERE s.approvalFlag = REJECT AND s.user = :user ")
+    // 승인여부가 HOLD이고 특정회원이 작성한 글 목록 리턴
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'HOLD' AND s.user = :user ")
     List<Share> findAllByUserYetApprovedShares(@Param("user") User user);
 
-    // 회원이 작성한 미승인된 글의 개수를 리턴
-    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = REJECT AND s.user = :user")
+    // 승인여부가 FALSE이고 특정회원이 작성한 글 목록 리턴
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'REJECT' AND s.user = :user ")
+    List<Share> findAllByUserRejectedShares(@Param("user") User user);
+
+    // 회원이 작성한 미승인(HOLD)된 글의 개수를 리턴
+    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = 'HOLD' AND s.user = :user")
     int countByUserYetApproved(@Param("user") User user);
 
     // 회원이 작성한 승인된 글의 개수를 리턴
-    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = APPROVE AND s.user = :user")
+    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = 'APPROVE' AND s.user = :user")
     int countByUserApproved(@Param("user") User user);
 
-    // 승인여부가 false인 글 목록 리턴
-    @Query("SELECT s FROM Share s WHERE s.approvalFlag = REJECT")
-    List<Share> findYetApprovedShares();
+    // 승인여부가 HOLD인 글 목록 리턴
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'HOLD'")
+    List<Share> findHoldShares();
 
     // 승인여부가 true인 글 목록 리턴
-    @Query("SELECT s FROM Share s WHERE s.approvalFlag = APPROVE")
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'APPROVE'")
     List<Share> findApprovedShares();
 
-    // 승인여부가 false이고 id에 따른 글 리턴
-    @Query("SELECT s FROM Share s WHERE s.approvalFlag = REJECT AND s.shareId = :shareId ")
+    // 승인여부가 HOLD이고 id에 따른 글 리턴
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'HOLD' AND s.shareId = :shareId ")
     Optional<Share> findByIdYetApprovedShares(@Param("shareId") int shareId);
 
 
