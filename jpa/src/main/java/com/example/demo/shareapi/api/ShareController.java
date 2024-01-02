@@ -78,7 +78,7 @@ public class ShareController {
             ){
         log.info("/donation/approval/complete : POST - ADMIN의 승인 Request");
         log.info("ENUM 값 수신 완료: {}", approvalStatus);
-//        log.info("컨트롤러에서 받은 ApproveDateDTO: {}", dto);
+
         ShareSetApprovalResponseDTO board
                 = shareService.setApprovalDate(shareId,
                 ApprovalStatus.valueOf(ApprovalStatus.class, approvalStatus.toUpperCase()));

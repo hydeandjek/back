@@ -67,11 +67,11 @@ public class Share {
 
 
     // 나눔 게시글과 양방향 관계 설정
-//    @OneToMany(mappedBy = "share", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "share", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 //    // 게시글 UI에서 댓글을 바로 보여주기 위해 FetchType을 EAGER
 //    // 게시글이 삭제되면 댓글 또한 삭제되어야 하기 때문에 CascadeType.REMOVE
 //    @OrderBy("id asc") // 댓글 정렬
-//    private List<ShareComment> comments;
+    private List<ShareComment> comments;
 //    private int commentCount; // 댓글 수
 
 
