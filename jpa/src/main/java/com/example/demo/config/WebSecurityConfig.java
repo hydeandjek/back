@@ -5,6 +5,7 @@ import com.example.demo.filter.JwtExceptionFilter;
 import com.example.demo.userapi.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -46,6 +47,9 @@ public class WebSecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/api/chat/admin/**").hasRole(String.valueOf(Role.ADMIN))
                 .antMatchers("/donation/approval/**").hasRole(String.valueOf(Role.ADMIN))
+                .antMatchers(HttpMethod.POST, "/api/qna-board/**").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/qna-board/**").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/qna-board/**").authenticated()
                 .anyRequest().permitAll();
 
 

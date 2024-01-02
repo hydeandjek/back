@@ -24,6 +24,10 @@ public class BoardResponseDTO {
 
     private String userId;
 
+    private String userName;
+
+    private int rowNum;
+
 //    private int count; // 댓글수?
 
 

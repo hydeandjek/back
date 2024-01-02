@@ -15,9 +15,6 @@ import javax.validation.constraints.Size;
 public class ShareUpdateRequestDTO {
 
     @NotBlank
-    private int boardId;
-
-    @NotBlank
     @Size(min = 2, max = 30)
     private String title;
 

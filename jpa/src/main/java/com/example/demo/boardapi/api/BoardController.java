@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -151,7 +152,7 @@ public class BoardController {
             BindingResult result
     ){
         log.info("/api/onelife-board POST - comment Register Request");
-        log.info("RequestDTO: {} ", requestDTO);
+        log.info("RequestDTO: {} ", requestDTO.getContent());
         log.info("TokenUserInfo: {} ", userInfo);
 
         if(result.hasErrors()) {
@@ -162,10 +163,9 @@ public class BoardController {
         }
 
         try {
-            CommentResponseDTO responseDTO
-                    = commentService.registerComment(boardId, requestDTO, userInfo);
+            commentService.registerComment(boardId, requestDTO, userInfo);
 
-            return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+            return null;
         } catch (RuntimeException e) {
             e.printStackTrace();
             return ResponseEntity

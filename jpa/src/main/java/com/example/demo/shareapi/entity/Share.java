@@ -1,12 +1,16 @@
 package com.example.demo.shareapi.entity;
 
 import com.example.demo.userapi.entity.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,19 +33,21 @@ public class Share {
     @Column(nullable = false)
     private String content;
 
-//    @OneToMany(mappedBy = "share",
-//            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-//            orphanRemoval = true
-//    ) // 상대방 엔티티의 조인되는 필드명
+    @OneToMany(mappedBy = "share",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            orphanRemoval = true
+    ) // 상대방 엔티티의 조인되는 필드명
+    @JsonIgnore
 //    @Builder.Default
-//    private List<Images> uploadImages = new ArrayList<>();
+    private List<Images> uploadImages = new ArrayList<>();
 //    private List<String> uploadImages; // 첨부되는 이미지 경로
 //    private List<MultipartFile> uploadImages;
 
     @CreationTimestamp
     private LocalDateTime regDate;
 
-    private LocalDateTime approvalDate; // 로컬에서 승인하는 날짜
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private String approvalDate; // 로컬에서 승인하는 날짜
 
     @UpdateTimestamp
     private LocalDateTime updateDate;

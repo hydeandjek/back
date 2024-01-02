@@ -25,17 +25,26 @@ public interface ShareRepository extends JpaRepository<Share, Integer> {
     @Query("SELECT s FROM Share s WHERE s.user = :user")
     List<Share> findAllByUser(@Param("user") User user);
 
+    // 승인여부가 false이고 특정회원이 작성한 글 목록 리턴
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = false AND s.user = :user ")
+    List<Share> findAllByUserYetApprovedShares(@Param("user") User user);
+
+    // 회원이 작성한 미승인된 글의 개수를 리턴
+    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = false AND s.user = :user")
+    int countByUserYetApproved(@Param("user") User user);
+
+    // 회원이 작성한 승인된 글의 개수를 리턴
+    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = true AND s.user = :user")
+    int countByUserApproved(@Param("user") User user);
+
     // 승인여부가 false인 글 목록 리턴
     @Query("SELECT s FROM Share s WHERE s.approvalFlag = false")
     List<Share> findYetApprovedShares();
 
-    // 승인여부가 false이고 id에 따른 글 목록 리턴
+    // 승인여부가 false이고 id에 따른 글 리턴
     @Query("SELECT s FROM Share s WHERE s.approvalFlag = false AND s.shareId = :shareId ")
     Optional<Share> findByIdYetApprovedShares(@Param("shareId") int shareId);
 
-//
-//    // 회원이 작성한 글의 개수를 리턴
-//    @Query("SELECT COUNT(*) FROM Board b WHERE b.user = :user")
-//    int countByUser(@Param("user") User user);
+
 
 }

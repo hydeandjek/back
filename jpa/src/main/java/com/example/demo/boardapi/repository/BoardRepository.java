@@ -11,13 +11,17 @@ import java.util.List;
 public interface BoardRepository extends JpaRepository<Board, Integer> {
 
     // 카테고리별 글 목록 리턴
-    @Query("SELECT b FROM Board b WHERE b.category = :category")
+    @Query("SELECT b FROM Board b WHERE b.category = :category ORDER BY boardId ASC")
     List<Board> findAllByCategory(@Param("category") String category);
 
     // 사용자가 클릭한 특정한 글 정보 리턴
     @Query("SELECT b FROM Board b WHERE b.category = :category AND b.boardId = :boardId")
     Board findByCategoryAndId(
             @Param("category") String category,
+            @Param("boardId") int boardId);
+
+    @Query("SELECT b FROM Board b WHERE b.boardId = :boardId")
+    Board findByBoardId(
             @Param("boardId") int boardId);
 
     // 특정 회원이 작성한 글 목록 리턴

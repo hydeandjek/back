@@ -1,8 +1,11 @@
 package com.example.demo.shareapi.entity;
 
 import com.example.demo.boardapi.entity.Board;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +49,8 @@ public class Images {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "share_id")
+    @JsonIgnore
+//    @OnDelete(action = OnDeleteAction.CASCADE)
     private Share share;
 
     // 생성자
