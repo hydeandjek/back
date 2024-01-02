@@ -1,10 +1,9 @@
 package com.example.demo.shareapi.dto.response;
 
-import com.example.demo.shareapi.entity.Images;
+import com.example.demo.userapi.entity.User;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Setter
 @Getter
@@ -34,5 +33,8 @@ public class ShareResponseDTO { // 목록 요청 응답 시 사용
 
     private int commentCount; // 댓글수
 
+    private String content;
+
+    private String userName;
 
 }

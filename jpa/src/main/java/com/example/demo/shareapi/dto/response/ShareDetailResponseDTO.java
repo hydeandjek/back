@@ -30,6 +30,8 @@ public class ShareDetailResponseDTO { // 상세 보기 요청 응답 시 사용
 
     private String userId;
 
+    private String userName;
+
     private List<ShareCommentResponseDTO> comments; // 등록 요청 응답 시에는 달린 댓글이 없을 것, 상세 요청 응답 시에는 존재할 것
 
 

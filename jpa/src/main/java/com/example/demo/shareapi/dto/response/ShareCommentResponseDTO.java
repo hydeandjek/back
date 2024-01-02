@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ShareCommentResponseDTO {
     // 글쓴이, 내용, 날짜 필요
-//    private int commentId;
+    private int commentId;
 
     private String content;
 
@@ -24,6 +24,8 @@ public class ShareCommentResponseDTO {
     private String userId;
 
     private int boardId;
+
+    private String userName;
 
 //    public ShareCommentResponseDTO toEntity(User user, Share share){
 //        this.userId = user.getId();

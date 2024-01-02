@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/donation")
+@RequestMapping("/board/donation")
 @CrossOrigin
 public class ShareController {
 
@@ -90,7 +90,7 @@ public class ShareController {
     }
 
     // 게시글 등록 요청 처리 @ requestfile multipartfile->list string : service
-    @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(value = "/regist", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> registerBoard(
                                 @AuthenticationPrincipal TokenUserInfo userInfo,
                                 @RequestPart(value = "uploadImages", required = false) List<MultipartFile> files,

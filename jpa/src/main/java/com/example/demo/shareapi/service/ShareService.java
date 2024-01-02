@@ -47,7 +47,6 @@ public class ShareService {
 //        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
         List<Share> boardList = shareRepository.findAll();
 
-
         List<ShareResponseDTO> dtoList = new ArrayList<>();
         for(Share board : boardList){
             List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
@@ -63,6 +62,8 @@ public class ShareService {
                                         .userId(board.getUser().getId())
                                         .imageUrl(filePath)
                                         .commentCount(countedComment)
+                                        .content(board.getContent())
+                                        .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
                                         .build();
             dtoList.add(dto);
         }
@@ -89,6 +90,8 @@ public class ShareService {
                     .userId(board.getUser().getId())
                     .imageUrl(filePath)
                     .commentCount(countedComment)
+                    .content(board.getContent())
+                    .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
                     .build();
             dtoList.add(dto);
         }
@@ -211,10 +214,12 @@ public class ShareService {
         List<ShareCommentResponseDTO> shareCommentResponseDTOList = new ArrayList<>();
         for(ShareComment shareComment:shareCommentList){
             ShareCommentResponseDTO shareCommentResponseDTO = ShareCommentResponseDTO.builder()
+                    .commentId(shareComment.getShareCommentId())
                     .content(shareComment.getContent())
                     .regDate(shareComment.getRegDate())
                     .userId(shareComment.getUser().getId())
                     .boardId(shareComment.getShare().getShareId())
+                    .userName(userRepository.findById(shareComment.getUser().getId()).map(User::getUserName).orElse(null))
                     .build();
             shareCommentResponseDTOList.add(shareCommentResponseDTO);
         }
@@ -234,6 +239,7 @@ public class ShareService {
                 .comments(shareCommentResponseDTOList) // 코멘트 리스트
                 .userId(share.getUser().getId())
                 .approvalFlag(share.isApprovalFlag())
+                .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
                 .build();
 
         return dto;
@@ -257,10 +263,12 @@ public class ShareService {
         List<ShareCommentResponseDTO> shareCommentResponseDTOList = new ArrayList<>();
         for(ShareComment shareComment:shareCommentList){
             ShareCommentResponseDTO shareCommentResponseDTO = ShareCommentResponseDTO.builder()
+                    .commentId(shareComment.getShareCommentId())
                     .content(shareComment.getContent())
                     .regDate(shareComment.getRegDate())
                     .userId(shareComment.getUser().getId())
                     .boardId(shareComment.getShare().getShareId())
+                    .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
                     .build();
             shareCommentResponseDTOList.add(shareCommentResponseDTO);
         }
@@ -280,6 +288,7 @@ public class ShareService {
                 .comments(shareCommentResponseDTOList) // 코멘트 리스트
                 .userId(share.getUser().getId())
                 .approvalFlag(share.isApprovalFlag())
+                .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
                 .build();
 
         return dto;
