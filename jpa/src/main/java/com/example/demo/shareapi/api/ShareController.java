@@ -10,6 +10,7 @@ import com.example.demo.shareapi.dto.response.ShareCommentResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareSetApprovalResponseDTO;
+import com.example.demo.shareapi.entity.ApprovalStatus;
 import com.example.demo.shareapi.service.ShareCommentService;
 import com.example.demo.shareapi.service.ShareService;
 import lombok.RequiredArgsConstructor;
@@ -69,14 +70,18 @@ public class ShareController {
     }
 
     // 승인 요청 처리 : 승인된 날짜 넣고 해당 글 리턴
-    @PostMapping("/approval/complete/{share_id}")
+    @PostMapping("/approval/complete/{share_id}/{flag}")
     public  ResponseEntity<?> approve(
             @AuthenticationPrincipal TokenUserInfo userInfo,
-            @PathVariable("share_id") int shareId
-    ){
+            @PathVariable("share_id") int shareId,
+            @PathVariable("flag")String approvalStatus
+            ){
         log.info("/donation/approval/complete : POST - ADMIN의 승인 Request");
+        log.info("ENUM 값 수신 완료: {}", approvalStatus);
 //        log.info("컨트롤러에서 받은 ApproveDateDTO: {}", dto);
-        ShareSetApprovalResponseDTO board = shareService.setApprovalDate(shareId);
+        ShareSetApprovalResponseDTO board
+                = shareService.setApprovalDate(shareId,
+                ApprovalStatus.valueOf(ApprovalStatus.class, approvalStatus.toUpperCase()));
 
         return ResponseEntity.ok().body(board);
     }

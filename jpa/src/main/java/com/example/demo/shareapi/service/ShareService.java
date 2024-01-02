@@ -12,6 +12,7 @@ import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
 import com.example.demo.shareapi.dto.request.ShareRequestDTO;
 import com.example.demo.shareapi.dto.response.ShareResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareSetApprovalResponseDTO;
+import com.example.demo.shareapi.entity.ApprovalStatus;
 import com.example.demo.shareapi.entity.Images;
 import com.example.demo.shareapi.entity.Share;
 import com.example.demo.shareapi.entity.ShareComment;
@@ -60,7 +61,7 @@ public class ShareService {
 
     public List<ShareResponseDTO> getBoardList() {
 //        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
-        List<Share> boardList = shareRepository.findAll();
+        List<Share> boardList = shareRepository.findApprovedShares();
 
 
         List<ShareResponseDTO> dtoList = new ArrayList<>();
@@ -167,14 +168,18 @@ public class ShareService {
 
     }
 
-    public ShareSetApprovalResponseDTO setApprovalDate(int shareId) {
+    public ShareSetApprovalResponseDTO setApprovalDate(int shareId, ApprovalStatus approvalStatus) {
         Share share = shareRepository.findById(shareId).orElseThrow(
                 () -> new IllegalArgumentException("해당 id의 게시글이 없습니다.")
         );
-        log.info("승인 여부 확인 : {}, 승인일: {}", share.isApprovalFlag(), share.getApprovalDate());
-        share.setApprovalFlag(true);
+        log.info("승인 여부 확인 : {}, 승인일: {}", share.getApprovalFlag(), share.getApprovalDate());
+        if (approvalStatus == ApprovalStatus.APPROVE){
+            share.setApprovalFlag(ApprovalStatus.APPROVE);
+        } else if(approvalStatus == ApprovalStatus.REJECT) {
+            share.setApprovalFlag(ApprovalStatus.REJECT);
+        }
         LocalDateTime currentDate = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String formattedDate = currentDate.format(formatter);
         share.setApprovalDate(formattedDate);
 
@@ -202,7 +207,7 @@ public class ShareService {
                 .regDate(share.getRegDate())
                 .userId(share.getUser().getId())
                 .approvalDate(share.getApprovalDate())
-                .approvalFlag(share.isApprovalFlag())
+                .approvalFlag(share.getApprovalFlag())
                 .imageUrl(imgUrlList)
                 .commentCount(shareCommentResponseDTOList.size()) // 댓글 수
                 .build();
@@ -248,7 +253,7 @@ public class ShareService {
                 .approvalDate(share.getApprovalDate())
                 .comments(shareCommentResponseDTOList) // 코멘트 리스트
                 .userId(share.getUser().getId())
-                .approvalFlag(share.isApprovalFlag())
+                .approvalFlag(share.getApprovalFlag())
                 .build();
 
         return dto;
@@ -294,7 +299,7 @@ public class ShareService {
                 .approvalDate(share.getApprovalDate())
                 .comments(shareCommentResponseDTOList) // 코멘트 리스트
                 .userId(share.getUser().getId())
-                .approvalFlag(share.isApprovalFlag())
+                .approvalFlag(share.getApprovalFlag())
                 .build();
 
         return dto;
@@ -342,7 +347,7 @@ public class ShareService {
                 .content(requestDTO.getContent())
                 .user(user)
 //                .comments(shareCommentList)
-                .approvalFlag(false)
+//                .approvalFlag(ApprovalStatus.HOLD)
                 .build();
         int id = shareRepository.save(share).getShareId();
 
@@ -512,7 +517,7 @@ public class ShareService {
                     .uploadImages(imagesList)
                     .comments(shareCommentResponseDTOList)
                     .approvalDate(board.getApprovalDate())
-                    .approvalFlag(board.isApprovalFlag())
+                    .approvalFlag(board.getApprovalFlag())
                     .userId(board.getUser().getId())
                     .build();
     }

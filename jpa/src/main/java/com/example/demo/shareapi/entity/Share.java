@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -47,7 +48,7 @@ public class Share {
     private LocalDateTime regDate;
 
 //    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private String approvalDate; // 로컬에서 승인하는 날짜
+    private String approvalDate; // 승인 또는 거부 날짜
 
     @UpdateTimestamp
     private LocalDateTime updateDate;
@@ -56,8 +57,14 @@ public class Share {
     @JoinColumn(name = "user_id")
     private User user;
 
+//    @Column(nullable = false)
+//    private boolean approvalFlag; // 승인여부 (프론트에서 유즈스테이트 디폴트 설정)
+    @Enumerated(EnumType.STRING) // enum 타입으로 매핑
     @Column(nullable = false)
-    private boolean approvalFlag; // 승인여부 (프론트에서 유즈스테이트 디폴트 설정)
+    @Builder.Default
+    private ApprovalStatus approvalFlag = ApprovalStatus.HOLD; // 승인 여부
+
+
 
     // 나눔 게시글과 양방향 관계 설정
 //    @OneToMany(mappedBy = "share", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
