@@ -37,6 +37,7 @@ public class ShareController {
     private final ShareCommentService shareCommentService;
 
 
+
     // 등록된 게시글 목록 조회 요청 처리
     @GetMapping
     public ResponseEntity<?> getBoardList(){
@@ -90,11 +91,11 @@ public class ShareController {
     }
 
     // 게시글 등록 요청 처리 @ requestfile multipartfile->list string : service
-    @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(value = "/regist", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> registerBoard(
                                 @AuthenticationPrincipal TokenUserInfo userInfo,
                                 @RequestPart(value = "uploadImages", required = false) List<MultipartFile> files,
-                                @Validated @RequestPart ShareRequestDTO requestDTO,
+                                @Validated @RequestPart("requestDTO") ShareRequestDTO requestDTO,
                                 BindingResult result
                                            ){
 
@@ -113,15 +114,6 @@ public class ShareController {
         }
 
         try {
-//            String uploadedFilePath = null;
-//            if(files != null){
-//                files.toString()
-//                // 전달받은 프로필 이미지를 먼저 지정된 경로에 저장한 후 DB 저장을 위해 경로를 받아오자.
-//                uploadedFilePath = Service.uploadProfileImage(files);
-//
-//            }
-
-//            ShareDetailResponseDTO responseDTO = shareService.registerBoard(files, requestDTO, userInfo);
             int id = shareService.registerBoard(files, requestDTO, userInfo);
 
             return ResponseEntity.status(HttpStatus.OK).body(id);
