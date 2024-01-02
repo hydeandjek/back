@@ -11,7 +11,7 @@ import java.util.List;
 public interface BoardRepository extends JpaRepository<Board, Integer> {
 
     // 카테고리별 글 목록 리턴
-    @Query("SELECT b FROM Board b WHERE b.category = :category ORDER BY boardId ASC")
+    @Query("SELECT b FROM Board b WHERE b.category = :category ORDER BY regDate DESC")
     List<Board> findAllByCategory(@Param("category") String category);
 
     // 사용자가 클릭한 특정한 글 정보 리턴
