@@ -1,5 +1,6 @@
 package com.example.demo.shareapi.dto.response;
 
+import com.example.demo.shareapi.entity.ApprovalStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class ShareSetApprovalResponseDTO {
 
     private String approvalDate;
 
-    private boolean approvalFlag;
+    private ApprovalStatus approvalFlag;
 
     private int commentCount; // 댓글수
 }
