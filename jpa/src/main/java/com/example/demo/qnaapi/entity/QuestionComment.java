@@ -34,7 +34,7 @@ public class QuestionComment {
     private User user;
 
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false)
     private String content;
 
     @CreationTimestamp
