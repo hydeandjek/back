@@ -28,11 +28,9 @@ public class ShareComment {
     private String content;
 
     @CreationTimestamp
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime regDate;
 
     @UpdateTimestamp
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime updateDate;
 
     @ManyToOne(fetch = FetchType.LAZY)

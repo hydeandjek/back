@@ -536,7 +536,80 @@ public class ShareService {
     }
 
 
+    public List<ShareResponseDTO> getMyboardList(TokenUserInfo userInfo, ApprovalStatus approvalStatus) {
+        if (approvalStatus == ApprovalStatus.APPROVE) {
+            List<Share> boardList = shareRepository.findMyboardApprove(getUser(userInfo.getUserId()));
 
+            List<ShareResponseDTO> dtoList = new ArrayList<>();
+            for (Share board : boardList) {
+                List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
+                String filePath = imagesList.get(0).getFilePath();
+
+                int countedComment = shareCommentRepository.countByBoard(board.getShareId());
+
+                ShareResponseDTO dto = ShareResponseDTO.builder()
+                        .id(board.getShareId())
+                        .title(board.getTitle())
+                        .regDate(board.getRegDate())
+                        .userId(board.getUser().getId())
+                        .imageUrl(filePath)
+                        .commentCount(countedComment)
+                        .content(board.getContent())
+                        .approvalDate(board.getApprovalDate())
+                        .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
+                        .build();
+                dtoList.add(dto);
+            }
+            return dtoList;
+        } else if (approvalStatus == ApprovalStatus.REJECT) {
+            List<Share> boardList = shareRepository.findMyboardReject(getUser(userInfo.getUserId()));
+
+            List<ShareResponseDTO> dtoList = new ArrayList<>();
+            for (Share board : boardList) {
+                List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
+                String filePath = imagesList.get(0).getFilePath();
+
+                int countedComment = shareCommentRepository.countByBoard(board.getShareId());
+
+                ShareResponseDTO dto = ShareResponseDTO.builder()
+                        .id(board.getShareId())
+                        .title(board.getTitle())
+                        .regDate(board.getRegDate())
+                        .userId(board.getUser().getId())
+                        .imageUrl(filePath)
+                        .commentCount(countedComment)
+                        .content(board.getContent())
+                        .approvalDate(board.getApprovalDate())
+                        .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
+                        .build();
+                dtoList.add(dto);
+            }
+            return dtoList;
+        } else {
+            List<Share> boardList = shareRepository.findMyboardHold(getUser(userInfo.getUserId()));
+
+            List<ShareResponseDTO> dtoList = new ArrayList<>();
+            for (Share board : boardList) {
+                List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
+                String filePath = imagesList.get(0).getFilePath();
+
+                int countedComment = shareCommentRepository.countByBoard(board.getShareId());
+
+                ShareResponseDTO dto = ShareResponseDTO.builder()
+                        .id(board.getShareId())
+                        .title(board.getTitle())
+                        .regDate(board.getRegDate())
+                        .userId(board.getUser().getId())
+                        .imageUrl(filePath)
+                        .commentCount(countedComment)
+                        .content(board.getContent())
+                        .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
+                        .build();
+                dtoList.add(dto);
+            }
+            return dtoList;
+        }
+    }
 }
 
 
