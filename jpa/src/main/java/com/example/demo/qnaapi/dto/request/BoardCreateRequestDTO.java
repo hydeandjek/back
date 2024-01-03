@@ -16,11 +16,11 @@ public class BoardCreateRequestDTO {
 
 
     @NotBlank
-    @Size(min = 2, max = 30)
+    @Size(min = 2, max = 50)
     private String title;
 
     @NotBlank
-    @Size(min = 2, max = 85)
+    @Size(min = 2, max = 200)
     private String content;
 
     // dto를 엔터티로 변환하는 메서드
