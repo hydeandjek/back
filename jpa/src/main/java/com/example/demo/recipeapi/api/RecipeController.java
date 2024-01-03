@@ -87,6 +87,30 @@ public class RecipeController {
         } catch (RuntimeException e) {
             log.warn("", e);
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(e.getMessage()); // 406
+        } catch (InterruptedException e) {
+            log.warn("", e);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(e.getMessage()); // 502
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/like")
+    public ResponseEntity<?> getLikeList (@AuthenticationPrincipal TokenUserInfo userInfo) {
+        try {
+
+            if(userInfo == null){
+                throw new IllegalAccessException("로그인하지 않은 유저입니다!");
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body(recipeService.getLikeLists(userInfo.getUserId()));
+
+        } catch (IllegalAccessException e) {
+            log.warn("", e);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage()); // 403
+        } catch (RuntimeException e) {
+            log.warn("", e);
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(e.getMessage()); // 406
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
