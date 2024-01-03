@@ -89,7 +89,7 @@ public class ShareService {
     public List<ShareResponseDTO> getNotYetApprovedBoardList() {
 //        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
 //        List<Share> boardList = shareRepository.findAll();
-        List<Share> notApprovedShares = shareRepository.findYetApprovedShares();
+        List<Share> notApprovedShares = shareRepository.findHoldShares();
 
         List<ShareResponseDTO> dtoList = new ArrayList<>();
         for(Share board : notApprovedShares){
@@ -188,6 +188,7 @@ public class ShareService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String formattedDate = currentDate.format(formatter);
         share.setApprovalDate(formattedDate);
+        log.info("{} 완료!", share.getApprovalFlag());
 
         List<Images> imagesList = imageRepository.findAllByBoardId(shareId);
         List<String> imgUrlList = new ArrayList<>();

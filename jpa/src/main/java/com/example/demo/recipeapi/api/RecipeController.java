@@ -73,13 +73,22 @@ public class RecipeController {
         log.info("찜 누른 유저: {}", userInfo);
 
         try {
+
+            if(userInfo == null){
+                throw new IllegalAccessException("로그인하지 않은 유저입니다!");
+            }
             LikeResponseDTO likeResponseDTO
                     = recipeService.insert(likeRequestDTO, userInfo.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body(likeResponseDTO);
 
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             log.warn("", e);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage()); // 403
+        } catch (RuntimeException e) {
+            log.warn("", e);
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(e.getMessage()); // 406
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
