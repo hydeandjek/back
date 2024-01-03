@@ -18,7 +18,7 @@ public class BoardUpdateRequestDTO {
     private int boardId;
 
     @NotBlank
-    @Size(min = 2, max = 30)
+    @Size(min = 2, max = 50)
     private String title;
 
     private String content;

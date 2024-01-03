@@ -21,7 +21,7 @@ public class CommentCreateRequestDTO {
 
 
     @NotBlank
-    @Size(min = 2, max = 85)
+    @Size(min = 2, max = 200)
     private String content;
 
 
