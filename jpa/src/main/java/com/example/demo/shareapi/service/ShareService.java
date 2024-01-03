@@ -1,7 +1,9 @@
 package com.example.demo.shareapi.service;
 
+import ch.qos.logback.core.util.FileUtil;
 import com.example.demo.auth.TokenUserInfo;
 import com.example.demo.boardapi.repository.BoardRepository;
+import com.example.demo.shareapi.config.AwsConfig;
 import com.example.demo.shareapi.dto.request.ApprovalDateDTO;
 
 import com.example.demo.shareapi.dto.request.ShareUpdateRequestDTO;
@@ -10,6 +12,7 @@ import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
 import com.example.demo.shareapi.dto.request.ShareRequestDTO;
 import com.example.demo.shareapi.dto.response.ShareResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareSetApprovalResponseDTO;
+import com.example.demo.shareapi.entity.ApprovalStatus;
 import com.example.demo.shareapi.entity.Images;
 import com.example.demo.shareapi.entity.Share;
 import com.example.demo.shareapi.entity.ShareComment;
@@ -21,16 +24,27 @@ import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.core.ResponseInputStream;
+
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
+import java.io.BufferedInputStream;
+import java.net.URLDecoder;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -43,9 +57,11 @@ public class ShareService {
     private final ImageRepository imageRepository;
     private final ShareCommentRepository shareCommentRepository;
 
+    private final S3Service s3Service;
+
     public List<ShareResponseDTO> getBoardList() {
 //        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
-        List<Share> boardList = shareRepository.findAll();
+        List<Share> boardList = shareRepository.findApprovedShares();
 
         List<ShareResponseDTO> dtoList = new ArrayList<>();
         for(Share board : boardList){
@@ -58,11 +74,11 @@ public class ShareService {
                                         .id(board.getShareId())
                                         .title(board.getTitle())
                                         .regDate(board.getRegDate())
-                                        .approvalDate(null)
                                         .userId(board.getUser().getId())
                                         .imageUrl(filePath)
                                         .commentCount(countedComment)
                                         .content(board.getContent())
+                                        .approvalDate(board.getApprovalDate())
                                         .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
                                         .build();
             dtoList.add(dto);
@@ -78,7 +94,10 @@ public class ShareService {
         List<ShareResponseDTO> dtoList = new ArrayList<>();
         for(Share board : notApprovedShares){
             List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
-            String filePath = imagesList.get(0).getFilePath(); //게시글id에 따른 첫번째 이미지의 경로
+            String filePath = null;
+            if(!imagesList.isEmpty()){
+                filePath = imagesList.get(0).getFilePath(); //게시글id에 따른 첫번째 이미지의 경로
+            }
 
             int countedComment = shareCommentRepository.countByBoard(board.getShareId());
 
@@ -155,14 +174,18 @@ public class ShareService {
 
     }
 
-    public ShareSetApprovalResponseDTO setApprovalDate(int shareId) {
+    public ShareSetApprovalResponseDTO setApprovalDate(int shareId, ApprovalStatus approvalStatus) {
         Share share = shareRepository.findById(shareId).orElseThrow(
                 () -> new IllegalArgumentException("해당 id의 게시글이 없습니다.")
         );
-        log.info("승인 여부 확인 : {}, 승인일: {}", share.isApprovalFlag(), share.getApprovalDate());
-        share.setApprovalFlag(true);
+        log.info("승인 여부 확인 : {}, 승인일: {}", share.getApprovalFlag(), share.getApprovalDate());
+        if (approvalStatus == ApprovalStatus.APPROVE){
+            share.setApprovalFlag(ApprovalStatus.APPROVE);
+        } else if(approvalStatus == ApprovalStatus.REJECT) {
+            share.setApprovalFlag(ApprovalStatus.REJECT);
+        }
         LocalDateTime currentDate = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String formattedDate = currentDate.format(formatter);
         share.setApprovalDate(formattedDate);
 
@@ -190,7 +213,7 @@ public class ShareService {
                 .regDate(share.getRegDate())
                 .userId(share.getUser().getId())
                 .approvalDate(share.getApprovalDate())
-                .approvalFlag(share.isApprovalFlag())
+                .approvalFlag(share.getApprovalFlag())
                 .imageUrl(imgUrlList)
                 .commentCount(shareCommentResponseDTOList.size()) // 댓글 수
                 .build();
@@ -238,8 +261,8 @@ public class ShareService {
                 .approvalDate(share.getApprovalDate())
                 .comments(shareCommentResponseDTOList) // 코멘트 리스트
                 .userId(share.getUser().getId())
-                .approvalFlag(share.isApprovalFlag())
                 .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
+                .approvalFlag(share.getApprovalFlag())
                 .build();
 
         return dto;
@@ -287,12 +310,36 @@ public class ShareService {
                 .approvalDate(share.getApprovalDate())
                 .comments(shareCommentResponseDTOList) // 코멘트 리스트
                 .userId(share.getUser().getId())
-                .approvalFlag(share.isApprovalFlag())
                 .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
+                .approvalFlag(share.getApprovalFlag())
                 .build();
 
         return dto;
     }
+
+    /* 1. 파일 업로드 */
+/*    public String upload(MultipartFile multipartFile, String s3FileName) throws IOException {
+        // 메타데이터 생성
+        ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentLength(multipartFile.getInputStream().available());
+        // putObject(버킷명, 파일명, 파일데이터, 메타데이터)로 S3에 객체 등록
+        amazonS3.putObject(bucket, s3FileName, multipartFile.getInputStream(), objMeta);
+        // 등록된 객체의 url 반환 (decoder: url 안의 한글or특수문자 깨짐 방지)
+        return URLDecoder.decode(amazonS3.getUrl(bucket, s3FileName).toString(), "utf-8");
+    }
+    public void uploadFile(MultipartFile file) {
+        try {
+            String fileName = file.getOriginalFilename();
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket(BUCKET_NAME)
+                    .key(fileName)
+                    .build();
+            S3Client.putObject(request, file.getInputStream());
+            System.out.println("File uploaded successfully to AWS S3.");
+        } catch (Exception e) {
+            System.out.println("Error uploading file to AWS S3: " + e.getMessage());
+        }
+    }*/
 
     public int registerBoard(
             final List<MultipartFile> files,
@@ -305,11 +352,6 @@ public class ShareService {
         log.info("글을 등록한 유저: {}", user);
         log.info("ShareRequestDTO: {}", requestDTO);
         log.info("files: {}", files);
-//        List<Images> imagesArrayList = new ArrayList<>();
-//        List<ShareComment> shareCommentList = new ArrayList<>();
-
-        // 받은 dto -> entity로 생성
-//        Share share = new Share(user, requestDTO.getTitle(), requestDTO.getContent());
 
         Share share = Share.builder()
                 .title(requestDTO.getTitle())
@@ -317,12 +359,15 @@ public class ShareService {
                 .content(requestDTO.getContent())
                 .user(user)
 //                .comments(shareCommentList)
-                .approvalFlag(false)
+//                .approvalFlag(ApprovalStatus.HOLD)
                 .build();
         int id = shareRepository.save(share).getShareId();
 
+        List<String> fileNameList = new ArrayList<>();
+
         if(!Objects.isNull(files)){
             for (MultipartFile file : files){
+
                 String originFileName = file.getOriginalFilename();
                 log.info("original file name: {}", originFileName);
 
@@ -333,36 +378,54 @@ public class ShareService {
                 log.info("content type={}", contentType);
 
                 // 서버에 저장되는 경로 (나중에 -> AWS S3)
-                String filePath = "C:/test/final_project_file_upload/"+originFileName;
+                //String filePath = "C:/test/final_project_file_upload/"+originFileName;
 
                 // 서버에 저장되는 이름 (파일명이 중복될 수 있으므로 서버에는 고유값으로 파일명 저장)
                 UUID uuid = UUID.randomUUID();
                 String serverFileName = uuid + originFileName;
 
-                Images images = new Images(originFileName, serverFileName, filePath, size);
+                String url = s3Service.uploadToS3Bucket(file.getBytes(), serverFileName);
+
+                Images images = new Images(originFileName, serverFileName, url, size);
 //                imagesArrayList.add(images);
 //                share.setUploadImages(imagesArrayList);
 
                 images.setShare(share); // 이미지를 게시글과 연결
                 imageRepository.save(images); // 이미지 테이블에 저장
 //
-                file.transferTo(new File(filePath)); // 로컬에 이미지 저장
+                //file.transferTo(new File(filePath)); // 로컬에 이미지 저장
             }
         }
-//        log.info("share.getUploadImages(): {}",share.getUploadImages());
-        // 등록
-//        Share saved = shareRepository.save(requestDTO.toEntity(user));
-//        saved.getUploadImages().forEach(images -> {
-//            images.setShare(saved);
-//            imageRepository.save(images);
-//
-//        });
+
+
 
         return id;
 //
 //        log.info("할 일 저장 완료! saved: {}", saved);
 //        return getBoard(saved.getShareId());
 //        return getBoard(requestDTO.toEntity(user).getCategory(), requestDTO.toEntity(user).getBoardId());
+    }
+
+    // blob to byte
+    private byte[] blobToBytes(Blob blob){
+        BufferedInputStream is = null;
+        byte[] bytes = null;
+        try {
+            is = new BufferedInputStream(blob.getBinaryStream());
+            bytes = new byte[(int) blob.length()];
+            int len = bytes.length;
+            int offset = 0;
+            int read = 0;
+
+            while (offset < len &&
+                    (read = is.read(bytes, offset, len-offset)) >= 0){
+                offset += read;
+            }
+
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException("blob을 읽지 못하였습니다.");
+        }
+        return bytes;
     }
 
     // 유저 조회 메서드
@@ -466,7 +529,7 @@ public class ShareService {
                     .uploadImages(imagesList)
                     .comments(shareCommentResponseDTOList)
                     .approvalDate(board.getApprovalDate())
-                    .approvalFlag(board.isApprovalFlag())
+                    .approvalFlag(board.getApprovalFlag())
                     .userId(board.getUser().getId())
                     .build();
     }

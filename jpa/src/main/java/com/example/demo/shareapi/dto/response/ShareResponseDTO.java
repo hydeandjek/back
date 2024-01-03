@@ -27,7 +27,7 @@ public class ShareResponseDTO { // 목록 요청 응답 시 사용
     private String imageUrl;
 //    private List<Images> uploadImages;
 
-    private LocalDateTime approvalDate;
+    private String approvalDate;
 
     private boolean approvalFlag;
 

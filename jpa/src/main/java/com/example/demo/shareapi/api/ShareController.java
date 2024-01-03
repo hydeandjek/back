@@ -10,6 +10,7 @@ import com.example.demo.shareapi.dto.response.ShareCommentResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareSetApprovalResponseDTO;
+import com.example.demo.shareapi.entity.ApprovalStatus;
 import com.example.demo.shareapi.service.ShareCommentService;
 import com.example.demo.shareapi.service.ShareService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class ShareController {
 
     private final ShareService shareService;
     private final ShareCommentService shareCommentService;
+
 
 
     // 등록된 게시글 목록 조회 요청 처리
@@ -68,14 +70,18 @@ public class ShareController {
     }
 
     // 승인 요청 처리 : 승인된 날짜 넣고 해당 글 리턴
-    @PostMapping("/approval/complete/{share_id}")
+    @PostMapping("/approval/complete/{share_id}/{flag}")
     public  ResponseEntity<?> approve(
             @AuthenticationPrincipal TokenUserInfo userInfo,
-            @PathVariable("share_id") int shareId
-    ){
+            @PathVariable("share_id") int shareId,
+            @PathVariable("flag")String approvalStatus
+            ){
         log.info("/donation/approval/complete : POST - ADMIN의 승인 Request");
+        log.info("ENUM 값 수신 완료: {}", approvalStatus);
 //        log.info("컨트롤러에서 받은 ApproveDateDTO: {}", dto);
-        ShareSetApprovalResponseDTO board = shareService.setApprovalDate(shareId);
+        ShareSetApprovalResponseDTO board
+                = shareService.setApprovalDate(shareId,
+                ApprovalStatus.valueOf(ApprovalStatus.class, approvalStatus.toUpperCase()));
 
         return ResponseEntity.ok().body(board);
     }
@@ -94,7 +100,7 @@ public class ShareController {
     public ResponseEntity<?> registerBoard(
                                 @AuthenticationPrincipal TokenUserInfo userInfo,
                                 @RequestPart(value = "uploadImages", required = false) List<MultipartFile> files,
-                                @Validated @RequestPart ShareRequestDTO requestDTO,
+                                @Validated @RequestPart("requestDTO") ShareRequestDTO requestDTO,
                                 BindingResult result
                                            ){
 
@@ -113,15 +119,6 @@ public class ShareController {
         }
 
         try {
-//            String uploadedFilePath = null;
-//            if(files != null){
-//                files.toString()
-//                // 전달받은 프로필 이미지를 먼저 지정된 경로에 저장한 후 DB 저장을 위해 경로를 받아오자.
-//                uploadedFilePath = Service.uploadProfileImage(files);
-//
-//            }
-
-//            ShareDetailResponseDTO responseDTO = shareService.registerBoard(files, requestDTO, userInfo);
             int id = shareService.registerBoard(files, requestDTO, userInfo);
 
             return ResponseEntity.status(HttpStatus.OK).body(id);

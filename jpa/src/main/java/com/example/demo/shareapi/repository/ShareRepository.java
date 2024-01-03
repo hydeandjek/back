@@ -26,23 +26,27 @@ public interface ShareRepository extends JpaRepository<Share, Integer> {
     List<Share> findAllByUser(@Param("user") User user);
 
     // 승인여부가 false이고 특정회원이 작성한 글 목록 리턴
-    @Query("SELECT s FROM Share s WHERE s.approvalFlag = false AND s.user = :user ")
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'HOLD' AND s.user = :user ")
     List<Share> findAllByUserYetApprovedShares(@Param("user") User user);
 
     // 회원이 작성한 미승인된 글의 개수를 리턴
-    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = false AND s.user = :user")
+    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = 'HOLD' AND s.user = :user")
     int countByUserYetApproved(@Param("user") User user);
 
     // 회원이 작성한 승인된 글의 개수를 리턴
-    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = true AND s.user = :user")
+    @Query("SELECT COUNT(*) FROM Share s WHERE s.approvalFlag = 'APPROVE' AND s.user = :user")
     int countByUserApproved(@Param("user") User user);
 
     // 승인여부가 false인 글 목록 리턴
-    @Query("SELECT s FROM Share s WHERE s.approvalFlag = false")
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'HOLD'")
     List<Share> findYetApprovedShares();
 
+    // 승인여부가 true인 글 목록 리턴
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'APPROVE'")
+    List<Share> findApprovedShares();
+
     // 승인여부가 false이고 id에 따른 글 리턴
-    @Query("SELECT s FROM Share s WHERE s.approvalFlag = false AND s.shareId = :shareId ")
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'HOLD' AND s.shareId = :shareId ")
     Optional<Share> findByIdYetApprovedShares(@Param("shareId") int shareId);
 
 

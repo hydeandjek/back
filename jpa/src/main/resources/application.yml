@@ -48,5 +48,17 @@ springdoc:
   swagger-ui:
     path: /myapi.html
 
+#cloud:
+#  aws:
+#    credentials:
+#      access-key: 엑세스 키
+#      secret-key: 시크릿 키
+#    s3:
+#      bucket: 버킷 이름
+#    region:
+#      static: 지역
+#    stack:
+#      auto: false
+
 
 
