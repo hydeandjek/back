@@ -8,6 +8,7 @@ import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.auth.TokenUserInfo;
@@ -36,8 +37,8 @@ public class BoardService {
         int i = 0;
 
         if("entire".equals(category)){
-            List<Board> all = boardRepository.findAll();
-
+            List<Board> all = boardRepository.findAll(Sort.by("regDate").descending());
+            int count = all.size();
             for (Board board : all) {
                 BoardResponseDTO dto = BoardResponseDTO.builder()
                         .id(board.getBoardId())
@@ -46,7 +47,7 @@ public class BoardService {
                         .regDate(board.getRegDate())
                         .userId(board.getUser().getId())
                         .userName(board.getUser().getUserName())
-                        .rowNum(i += 1)
+                        .rowNum(count--)
                         .build();
 
                 dtoList.add(dto);
@@ -54,7 +55,7 @@ public class BoardService {
 
         }else {
             List<Board> boardList = boardRepository.findAllByCategory(category);
-
+            int count = boardList.size();
             for (Board board : boardList) {
                 BoardResponseDTO dto = BoardResponseDTO.builder()
                         .id(board.getBoardId())
@@ -63,7 +64,7 @@ public class BoardService {
                         .regDate(board.getRegDate())
                         .userId(board.getUser().getId())
                         .userName(board.getUser().getUserName())
-                        .rowNum(i += 1)
+                        .rowNum(count--)
                         .build();
                 dtoList.add(dto);
             }

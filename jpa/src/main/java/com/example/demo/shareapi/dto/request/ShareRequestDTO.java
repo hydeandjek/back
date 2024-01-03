@@ -29,7 +29,7 @@ public class ShareRequestDTO {
 
 //    private List<ShareCommentRequestDTO> comments;
 
-    private boolean approvalFlag; // 승인여부 (프론트에서 유즈스테이트 디폴트 설정)
+//    private boolean approvalFlag; // 승인여부 (프론트에서 유즈스테이트 디폴트 설정)
 
 
     // dto를 엔티티로 변환
@@ -39,7 +39,7 @@ public class ShareRequestDTO {
                 .title(this.title)
                 .content(this.content)
 //                .uploadImages(this.uploadImages) -->Images객체에서 수정하기
-                .approvalFlag(this.approvalFlag)
+//                .approvalFlag(this.approvalFlag)
                 .user(user)
                 .build();
     }
