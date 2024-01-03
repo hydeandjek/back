@@ -26,6 +26,8 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -166,11 +168,9 @@ public class RecipeService {
                 () -> new IllegalArgumentException("회원 정보가 없습니다.")
         );
 
-        // 좋아요한 레시피 조회
+        /*// 좋아요한 레시피 조회
         String reqUri = "http://openapi.foodsafetykorea.go.kr/api/"+getApiKey()+"/COOKRCP01/json/1/1"+"/RCP_NM="+likeRequestDTO.getRecipeName();
-
         RestTemplate template = new RestTemplate();
-
         String jsonString = template.getForObject(reqUri, String.class); // 스트링으로 받아야 그대로 받음.
         log.info("레시피 리스트 요청 응답 데이터: {}", jsonString);
 
@@ -181,67 +181,84 @@ public class RecipeService {
 
         JSONObject cookrcp01 = (JSONObject) jsonObject.get("COOKRCP01");
         JSONArray recipe = (JSONArray) cookrcp01.get("row"); // 배열 추출
-//        log.info("배열: {}", recipe);
 
         JSONObject recipeObj = (JSONObject) recipe.get(0); // 배열 안 객체 추출
         String rcpNm = (String) recipeObj.get("RCP_NM"); // 객체 안의 키의 값 추출
 
-        log.info("좋아요 요청한 레시피: {}, 조회한 레시피: {}",likeRequestDTO.getRecipeName(), rcpNm);
-
-//        if(!likeRequestDTO.getRecipeName().equals(rcpNm)){
-//            throw new IllegalArgumentException("해당 레시피를 가져올 수 없습니다!");
-//        }
+        log.info("좋아요 요청한 레시피: {}, 조회한 레시피: {}",likeRequestDTO.getRecipeName(), rcpNm);*/
+        log.info("좋아요 요청한 레시피: {}",likeRequestDTO.getRecipeName());
         boolean dtoDone = likeRequestDTO.isDone();
         System.out.println("likeRequestDTO.isDone(): " + dtoDone);
 
         // 디비에서 조회
-//        Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).orElseThrow(null);
+        Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName());
+        log.info("like는 null 또는 존재: {}", like);
 
-        if(dtoDone){ // 요청으로 전달된 dto의 done 값이 true라면 (like는 null일 것)
-            // 디비에서 조회
-            boolean like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent(); //false=테이블에 없음
-            log.info("false여야 찜 테이블에 존재하지 않는 것: {}", like);
-            if (like) throw new RuntimeException("이미 찜한 레시피입니다!!!");
-            
+        List<Like> allByUser = likeRepository.findAllByUser(user); // 회원이 찜한 것들
+        List<String> likedRecipeNames = new ArrayList<>();
+
+
+        if(dtoDone){
+            for(Like like1 : allByUser){
+                if(like1.getRecipeName().equals(likeRequestDTO.getRecipeName())){
+                    throw new RuntimeException("이미 해당 회원의 찜 데이터가 존재!!!!!");
+                }
+            }
             Like saved = likeRepository.save(Like.builder().recipeName(likeRequestDTO.getRecipeName()).user(user).build());
             log.info("table saved!!!: {}", saved);
-        } else {
-            // 디비에서 조회
-            boolean likeCheck = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).isPresent(); // true=테이블에 존재
-            log.info("true여야 테이블에 존재하는 것: {}", likeCheck);
-            if (!likeCheck) throw new RuntimeException("찜목록에 존재하지 않아 삭제 실패!!!");
-
-            Like like = likeRepository.findByRecipeName(likeRequestDTO.getRecipeName()).orElseThrow();
-            log.info("전달받은 dto의 done값은 false여야 맞음: {}", likeRequestDTO.isDone());
-            likeRepository.delete(Objects.requireNonNull(like));
-            log.info("table deleted!!!");
         }
+        if(!allByUser.isEmpty()){ // 해당 회원의 찜 목록 데이터가 1개 이상 존재한다면
+
+            if(!dtoDone){
+                likeRepository.delete(Objects.requireNonNull(like));
+                log.info("table deleted!!!");
+
+            }
+//            return LikeResponseDTO.builder()
+//                    .done(likeRequestDTO.isDone())
+//                    .recipeName(likeRequestDTO.getRecipeName())
+//                    .userId(userId)
+//                    .likedRecipeList(likedRecipeNames) //문자열 담긴 리스트
+//                    .likeCount(countByUser)
+//                    .build(); // 찜목록에서 추가되거나 삭제된 것을 응답.
+
+        }
+
+        int countByUser = likeRepository.countByUser(user);
+        log.info("이 회원{}이 찜한 recipe name을  전달합니다.", userId);
+        for (Like like1 : allByUser) {
+            String recipeName = like1.getRecipeName();
+            likedRecipeNames.add(recipeName);
+        }
+        log.info("회원 {}의 찜한 레시피명: {}, 찜 개수: {}", userId, likedRecipeNames, countByUser);
 
         return LikeResponseDTO.builder()
                 .done(likeRequestDTO.isDone())
                 .recipeName(likeRequestDTO.getRecipeName())
                 .userId(userId)
+                .likedRecipeList(likedRecipeNames) //문자열 담긴 리스트
+                .likeCount(countByUser)
                 .build(); // 찜목록에서 추가되거나 삭제된 것을 응답.
-
-//        // 이미 좋아요되어있으면 에러 반환
-//        if (likeRepository.findByUserAndRecipe(user, recipe).isPresent()){
-//            //TODO 409에러로 변경
-//            throw new Exception("이미 좋아요한 레시피는 좋아요 할 수 없음!");
-//        }
-
+//        throw new InterruptedException("이것을 봤다면 무언가가 잘못된 것이다."); // 502
     }
 
-//    public void delete(LikeRequestDTO likeRequestDTO) {
-//        User user = userRepository.findById(String.valueOf(likeRequestDTO.getUserId()))
-//                .orElseThrow(() -> new NotFoundException("Could not found user id : " + likeRequestDTO.getUserId()));
-//
-//        Recipe recipe = recipeRepository.findById(Integer.valueOf(likeRequestDTO.getRecipeName()))
-//                .orElseThrow(() -> new NotFoundException("Could not found recipe id : " + likeRequestDTO.getRecipeName()));
-//
-//        Like like = likeRepository.findByUserAndRecipe(user, recipe)
-//                .orElseThrow(() -> new NotFoundException("Could not found like id"));
-//
-//        likeRepository.delete(like);
+    public List<String> getLikeLists(final String userId) {
 
-//    }
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("회원 정보가 없습니다.")
+        );
+
+        List<Like> allByUser = likeRepository.findAllByUser(user); // 회원이 찜한 것들
+        List<String> likedRecipeNames = new ArrayList<>();
+
+
+        for (Like like1 : allByUser) {
+            String recipeName = like1.getRecipeName();
+            likedRecipeNames.add(recipeName);
+        }
+
+        return likedRecipeNames;
+    }
+
+
 }
