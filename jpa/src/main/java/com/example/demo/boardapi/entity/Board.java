@@ -35,7 +35,7 @@ public class Board {
 //    @GenericGenerator(name = "system-uuid", strategy = "uuid") // 커스텀한 값(uuid)
 //    private String userId;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 50)
     private String title;
 
     @Column(nullable = false)
