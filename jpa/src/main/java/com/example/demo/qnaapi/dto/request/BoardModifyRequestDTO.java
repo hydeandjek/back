@@ -17,11 +17,11 @@ import java.time.LocalDateTime;
 public class BoardModifyRequestDTO {
 
     @NotBlank
-    @Size(min = 2, max = 30)
+    @Size(min = 2, max = 50)
     private String title;
 
     @NotBlank
-    @Size(min = 2, max = 85)
+    @Size(min = 2, max = 200)
     private String content;
 
 
