@@ -45,6 +45,7 @@ public class Share {
 //    private List<MultipartFile> uploadImages;
 
     @CreationTimestamp
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime regDate;
 
 //    @DateTimeFormat(pattern = "yyyy-MM-dd")

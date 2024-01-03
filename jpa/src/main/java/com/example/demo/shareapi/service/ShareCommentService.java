@@ -37,7 +37,7 @@ public class ShareCommentService {
             ShareCommentResponseDTO dto;
             if(comment.getUpdateDate() != null){
                 dto = ShareCommentResponseDTO.builder()
-//                        .commentId(comment.getCommentId())
+                        .commentId(comment.getShareCommentId())
                         .content(comment.getContent())
                         .regDate(comment.getUpdateDate()) // 수정된 댓글이라면 수정날짜 넣기
                         .userId(comment.getUser().getId())
@@ -46,7 +46,7 @@ public class ShareCommentService {
 
             } else {
                 dto = ShareCommentResponseDTO.builder()
-//                        .commentId(comment.getCommentId())
+                        .commentId(comment.getShareCommentId())
                         .content(comment.getContent())
                         .regDate(comment.getRegDate()) // 수정안됐다면 등록 날짜 넣기
                         .userId(comment.getUser().getId())

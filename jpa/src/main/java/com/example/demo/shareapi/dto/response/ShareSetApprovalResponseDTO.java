@@ -2,6 +2,7 @@ package com.example.demo.shareapi.dto.response;
 
 import com.example.demo.shareapi.entity.ApprovalStatus;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ShareSetApprovalResponseDTO {
 
 //    private String category; // 카테고리 받아온거 넣기
 
+    @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm")
     private LocalDateTime regDate;
 
     private String userId;

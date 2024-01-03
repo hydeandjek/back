@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/donation")
+@RequestMapping("/board/donation")
 @CrossOrigin
 public class ShareController {
 
@@ -293,6 +293,13 @@ public class ShareController {
         return ResponseEntity.ok().body(boardList);
     }
 
-    // 미승인된 게시물 상세보기 요청 처리
+    // 내 게시물 목록 보기
+    @GetMapping("/mypage/{approvalFlag}")
+    public ResponseEntity<?> getMyboardList(@AuthenticationPrincipal TokenUserInfo userInfo,
+                                            @PathVariable("approvalFlag") ApprovalStatus approvalStatus) {
+        List<ShareResponseDTO> boardList = shareService.getMyboardList(userInfo, approvalStatus);
+
+        return ResponseEntity.ok().body(boardList);
+    }
 
 }
