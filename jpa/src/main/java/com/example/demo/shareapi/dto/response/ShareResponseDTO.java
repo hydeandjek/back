@@ -1,8 +1,8 @@
 package com.example.demo.shareapi.dto.response;
-
 import com.example.demo.shareapi.entity.ApprovalStatus;
 import com.example.demo.userapi.entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 

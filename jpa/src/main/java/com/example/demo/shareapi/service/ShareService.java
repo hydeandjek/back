@@ -66,7 +66,11 @@ public class ShareService {
         List<ShareResponseDTO> dtoList = new ArrayList<>();
         for(Share board : boardList){
             List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
-            String filePath = imagesList.get(0).getFilePath(); //게시글id에 따른 첫번째 이미지의 경로
+            String filePath = null;
+            if(!imagesList.isEmpty()){
+                filePath = imagesList.get(0).getFilePath(); //게시글id에 따른 첫번째 이미지의 경로
+            }
+
 
             int countedComment = shareCommentRepository.countByBoard(board.getShareId());
 

@@ -2,6 +2,7 @@ package com.example.demo.qnaapi.service;
 
 
 import com.example.demo.auth.TokenUserInfo;
+import com.example.demo.chatapi.util.SHA256;
 import com.example.demo.qnaapi.dto.request.BoardCreateRequestDTO;
 import com.example.demo.qnaapi.dto.request.BoardModifyRequestDTO;
 import com.example.demo.qnaapi.dto.request.CommentCreateRequestDTO;
@@ -60,7 +61,7 @@ public class QnaService {
                     .content(questionBoard.getContent())
                     .regDate(questionBoard.getRegDate())
                     .updateDate(questionBoard.getUpdateDate())
-                    .userId(questionBoard.getUser().getId())
+                    .userId(SHA256.encrypt(questionBoard.getUser().getId()))
                     .userName(questionBoard.getUser().getUserName())
                     .build();
 

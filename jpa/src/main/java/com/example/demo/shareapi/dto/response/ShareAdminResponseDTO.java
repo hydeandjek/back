@@ -21,6 +21,7 @@ public class ShareAdminResponseDTO {
 
 //    private String category; // 카테고리 받아온거 넣기
 
+
     @JsonFormat(pattern = "yyyy/MM/dd HH:mm")
     private LocalDateTime regDate;
 

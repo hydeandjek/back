@@ -21,6 +21,7 @@ public class ShareCommentResponseDTO {
 
     private String content;
 
+
     @JsonFormat(pattern = "yyyy/MM/dd HH:mm:ss")
     private LocalDateTime regDate; // 등록날짜 또는 수정날짜 (가장 최근 날짜)
 
