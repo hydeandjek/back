@@ -1,7 +1,7 @@
 package com.example.demo.shareapi.dto.response;
-import com.example.demo.shareapi.entity.Images;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.example.demo.shareapi.entity.ApprovalStatus;
 import com.example.demo.userapi.entity.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,8 +23,7 @@ public class ShareResponseDTO { // 목록 요청 응답 시 사용
 
 //    private String category; // 카테고리 받아온거 넣기
 
-//    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy/MM/dd HH:mm", timezone="Asia/Seoul") //날짜 포멧 바꾸기
-    @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm")
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm")
     private LocalDateTime regDate;
 
     private String userId;
@@ -32,9 +31,10 @@ public class ShareResponseDTO { // 목록 요청 응답 시 사용
     private String imageUrl;
 //    private List<Images> uploadImages;
 
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm")
     private String approvalDate;
 
-    private boolean approvalFlag;
+    private ApprovalStatus approvalFlag;
 
     private int commentCount; // 댓글수
 

@@ -27,11 +27,10 @@ public class ShareDetailResponseDTO { // 상세 보기 요청 응답 시 사용
 
     private List<Images> uploadImages;
 
-
-//    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy/MM/dd HH:mm", timezone="Asia/Seoul") //날짜 포멧 바꾸기
-    @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm")
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm")
     private LocalDateTime regDate;
 
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm")
     private String approvalDate;
 
     private String userId;

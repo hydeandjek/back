@@ -21,8 +21,8 @@ public class ShareCommentResponseDTO {
 
     private String content;
 
-//    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy/MM/dd HH:mm", timezone="Asia/Seoul") //날짜 포멧 바꾸기
-    @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm:ss")
+
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm:ss")
     private LocalDateTime regDate; // 등록날짜 또는 수정날짜 (가장 최근 날짜)
 
     private String userId;
