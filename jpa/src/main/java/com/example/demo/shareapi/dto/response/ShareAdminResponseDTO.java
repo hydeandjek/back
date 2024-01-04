@@ -1,6 +1,8 @@
 package com.example.demo.shareapi.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -19,6 +21,8 @@ public class ShareAdminResponseDTO {
 
 //    private String category; // 카테고리 받아온거 넣기
 
+
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm")
     private LocalDateTime regDate;
 
     private String userId;

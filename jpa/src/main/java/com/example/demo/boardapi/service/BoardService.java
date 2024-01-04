@@ -4,9 +4,16 @@ import com.example.demo.auth.TokenUserInfo;
 import com.example.demo.boardapi.dto.BoardDetailResponseDTO;
 import com.example.demo.boardapi.dto.BoardRequestDTO;
 import com.example.demo.boardapi.dto.BoardResponseDTO;
+import com.example.demo.boardapi.dto.MyPostResponseDTO;
 import com.example.demo.boardapi.entity.Board;
 import com.example.demo.boardapi.repository.BoardRepository;
 import com.example.demo.chatapi.util.SHA256;
+
+import com.example.demo.qnaapi.entity.QuestionBoard;
+import com.example.demo.qnaapi.repository.QnaBoardRepository;
+import com.example.demo.shareapi.dto.response.ShareResponseDTO;
+import com.example.demo.shareapi.entity.Share;
+import com.example.demo.shareapi.repository.ShareRepository;
 import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,27 +38,30 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
 
+    private final QnaBoardRepository qnaBoardRepository;
+    private final ShareRepository shareRepository;
+
     @PersistenceContext
     private EntityManager entityManager;
 
-    public List<BoardResponseDTO> getBoardList(String category) {
+    public List<?> getBoardList(String category) {
 //        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
 
-        List<BoardResponseDTO> dtoList = new ArrayList<>();
+        List<MyPostResponseDTO> dtoList = new ArrayList<>();
         int i = 0;
 
         if("entire".equals(category)){
             List<Board> all = boardRepository.findAll(Sort.by("regDate").descending());
             int count = all.size();
             for (Board board : all) {
-                BoardResponseDTO dto = BoardResponseDTO.builder()
-                        .id(board.getBoardId())
+                MyPostResponseDTO dto = MyPostResponseDTO.builder()
+                        .boardId(board.getBoardId())
                         .title(board.getTitle())
                         .category(board.getCategory())
                         .regDate(board.getRegDate())
                         .userId(SHA256.encrypt(board.getUser().getId()))
                         .userName(board.getUser().getUserName())
-                        .rowNum(count--)
+                        .rowNumber(count--)
                         .build();
 
                 dtoList.add(dto);
@@ -61,18 +71,44 @@ public class BoardService {
             List<Board> boardList = boardRepository.findAllByCategory(category);
             int count = boardList.size();
             for (Board board : boardList) {
-                BoardResponseDTO dto = BoardResponseDTO.builder()
-                        .id(board.getBoardId())
+                MyPostResponseDTO dto = MyPostResponseDTO.builder()
+                        .boardId(board.getBoardId())
                         .title(board.getTitle())
-                        .category(category)
+                        .category(board.getCategory())
                         .regDate(board.getRegDate())
-                        .userId(board.getUser().getId())
+                        .userId(SHA256.encrypt(board.getUser().getId()))
                         .userName(board.getUser().getUserName())
-                        .rowNum(count--)
+                        .rowNumber(count--)
                         .build();
                 dtoList.add(dto);
             }
         }
+        return dtoList;
+    }
+
+    public List<BoardResponseDTO> getBoardList2() {
+//        List<Board> list = BoardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardid"));
+
+        List<BoardResponseDTO> dtoList = new ArrayList<>();
+        int i = 0;
+
+
+        List<Board> all = boardRepository.findAll(Sort.by("regDate").descending());
+        int count = all.size();
+        for (Board board : all) {
+            BoardResponseDTO dto = BoardResponseDTO.builder()
+                    .id(board.getBoardId())
+                    .title(board.getTitle())
+                    .category(board.getCategory())
+                    .regDate(board.getRegDate())
+                    .userId(board.getUser().getId())
+                    .userName(board.getUser().getUserName())
+                    .rowNum(count--)
+                    .build();
+
+            dtoList.add(dto);
+        }
+
         return dtoList;
     }
 
@@ -208,6 +244,33 @@ public class BoardService {
     }
 
 
+//    public List<ShareResponseDTO> getAllBoardList() {
+//
+//        List<BoardResponseDTO> dtoList = new ArrayList<>();
+//        int i = 0;
+//
+//        List<Board> allBoard = boardRepository.findAll(Sort.by("regDate").descending());
+//        List<Share> allShare = shareRepository.findAll(Sort.by("regDate").descending());
+//        List<QuestionBoard> allQna = qnaBoardRepository.findAll(Sort.by("regDate").descending());
+//        int count = allBoard.size();
+//        for (Board board : allBoard) {
+//            BoardResponseDTO dto = BoardResponseDTO.builder()
+//                    .id(board.getBoardId())
+//                    .title(board.getTitle())
+//                    .category(board.getCategory())
+//                    .regDate(board.getRegDate())
+//                    .userId(board.getUser().getId())
+//                    .userName(board.getUser().getUserName())
+//                    .rowNum(count--)
+//                    .build();
+//
+//            dtoList.add(dto);
+//        }
+//
+//
+//        return dtoList;
+//
+//    }
 }
 
 

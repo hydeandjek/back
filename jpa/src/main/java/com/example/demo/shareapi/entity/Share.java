@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,9 +45,11 @@ public class Share {
 //    private List<MultipartFile> uploadImages;
 
     @CreationTimestamp
+//    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy/MM/dd HH:mm", timezone="Asia/Seoul") //날짜 포멧 바꾸기
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime regDate;
 
-//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    //    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String approvalDate; // 승인 또는 거부 날짜
 
     @UpdateTimestamp
@@ -57,7 +59,7 @@ public class Share {
     @JoinColumn(name = "user_id")
     private User user;
 
-//    @Column(nullable = false)
+    //    @Column(nullable = false)
 //    private boolean approvalFlag; // 승인여부 (프론트에서 유즈스테이트 디폴트 설정)
     @Enumerated(EnumType.STRING) // enum 타입으로 매핑
     @Column(nullable = false)
@@ -88,6 +90,12 @@ public class Share {
     public void updateShare(String title, String content){
         this.title = title;
         this.content = content;
+    }
+    public String datePicker(String s){
+        LocalDateTime currentDate = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return currentDate.format(formatter);
+//        share.setApprovalDate(formattedDate);
     }
 
 
