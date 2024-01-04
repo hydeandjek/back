@@ -4,6 +4,7 @@ import com.example.demo.auth.TokenUserInfo;
 import com.example.demo.boardapi.dto.*;
 import com.example.demo.boardapi.service.BoardService;
 import com.example.demo.boardapi.service.CommentService;
+import com.example.demo.shareapi.dto.response.ShareResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,12 +28,31 @@ public class BoardController {
     private final BoardService boardService;
     private final CommentService commentService;
 
+    // 마이페이지 게시글 목록 조회 요청 처리
+//    @GetMapping
+//    public ResponseEntity<?> getAllBoardList(){
+//        log.info("/allBoard : GET - board List Request");
+//        List<ShareResponseDTO> boardList = boardService.getAllBoardList();
+//
+//
+//        return ResponseEntity.ok().body(boardList);
+//    }
+
 
     // 카테고리별 게시글 목록 요청 처리
     @GetMapping("/{category}")
     public ResponseEntity<?> getBoardList(@PathVariable String category){
         log.info("/api/onelife-board/{} GET - board List Request", category);
-        List<BoardResponseDTO> boardList = boardService.getBoardList(category);
+        List<?> boardList = boardService.getBoardList(category);
+
+
+        return ResponseEntity.ok().body(boardList);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getBoardList2(){
+        log.info("/api/onelife-board GET - board List Request");
+        List<BoardResponseDTO> boardList = boardService.getBoardList2();
 
 
         return ResponseEntity.ok().body(boardList);

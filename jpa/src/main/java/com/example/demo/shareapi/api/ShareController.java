@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/donation")
+@RequestMapping("/board/donation")
 @CrossOrigin
 public class ShareController {
 
