@@ -1,8 +1,6 @@
 package com.example.demo.shareapi.api;
 
 import com.example.demo.auth.TokenUserInfo;
-import com.example.demo.shareapi.dto.request.ApprovalDateDTO;
-
 import com.example.demo.shareapi.dto.request.ShareCommentRequestDTO;
 import com.example.demo.shareapi.dto.request.ShareRequestDTO;
 import com.example.demo.shareapi.dto.request.ShareUpdateRequestDTO;
@@ -30,7 +28,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/donation")
+@RequestMapping("/board/donation")
 @CrossOrigin
 public class ShareController {
 

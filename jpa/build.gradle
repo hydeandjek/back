@@ -16,7 +16,6 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
 
 java {
 	sourceCompatibility = '11'
@@ -36,15 +35,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.jetbrains:annotations:24.0.0'
-    compileOnly 'org.projectlombok:lombok'
+	implementation 'org.jetbrains:annotations:24.0.0'
+	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-
-	implementation 'com.h2database:h2:1.4.193'
 
 	// 쿼리 파라미터 추가 외부 로그 남기기
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0'
@@ -84,12 +80,8 @@ dependencies {
 	implementation 'javax.mail:javax.mail-api:1.6.2'
 	implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
 
-<<<<<<< HEAD
-
-=======
 	// S3 라이브러리
 	implementation 'software.amazon.awssdk:s3:2.17.52'
->>>>>>> c8e2db62800bab4913cb3ef0feb5521cc9b17e3c
 
 }
 
