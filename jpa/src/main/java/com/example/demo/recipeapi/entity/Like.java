@@ -28,4 +28,7 @@ public class Like {
     @Column(name = "recipe_name")
     private String recipeName; // 프론트에서 받아서 넣기
 
+    @Column(name = "recipe_img")
+    private String recipeImg; // 프론트에서 받아서 넣기
+
 }
