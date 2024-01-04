@@ -1,15 +1,10 @@
 package com.example.demo.shareapi.service;
 
-import ch.qos.logback.core.util.FileUtil;
 import com.example.demo.auth.TokenUserInfo;
-import com.example.demo.boardapi.repository.BoardRepository;
-import com.example.demo.shareapi.config.AwsConfig;
-import com.example.demo.shareapi.dto.request.ApprovalDateDTO;
-
+import com.example.demo.shareapi.dto.request.ShareRequestDTO;
 import com.example.demo.shareapi.dto.request.ShareUpdateRequestDTO;
 import com.example.demo.shareapi.dto.response.ShareCommentResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
-import com.example.demo.shareapi.dto.request.ShareRequestDTO;
 import com.example.demo.shareapi.dto.response.ShareResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareSetApprovalResponseDTO;
 import com.example.demo.shareapi.entity.ApprovalStatus;
@@ -24,27 +19,21 @@ import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.core.ResponseInputStream;
 
-import software.amazon.awssdk.services.s3.model.*;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.BufferedInputStream;
-import java.net.URLDecoder;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -83,6 +72,7 @@ public class ShareService {
                                         .commentCount(countedComment)
                                         .content(board.getContent())
                                         .approvalDate(board.getApprovalDate())
+                                        .approvalFlag(board.getApprovalFlag())
                                         .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
                                         .build();
             dtoList.add(dto);
