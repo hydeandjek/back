@@ -1,13 +1,14 @@
 package com.example.demo.boardapi.service;
 
-import com.example.demo.boardapi.dto.*;
+import com.example.demo.auth.TokenUserInfo;
+import com.example.demo.boardapi.dto.BoardDetailResponseDTO;
+import com.example.demo.boardapi.dto.BoardRequestDTO;
+import com.example.demo.boardapi.dto.BoardResponseDTO;
+import com.example.demo.boardapi.dto.MyPostResponseDTO;
 import com.example.demo.boardapi.entity.Board;
 import com.example.demo.boardapi.repository.BoardRepository;
 import com.example.demo.chatapi.util.SHA256;
-import com.example.demo.qnaapi.entity.QuestionBoard;
 import com.example.demo.qnaapi.repository.QnaBoardRepository;
-import com.example.demo.shareapi.dto.response.ShareResponseDTO;
-import com.example.demo.shareapi.entity.Share;
 import com.example.demo.shareapi.repository.ShareRepository;
 import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
@@ -16,12 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.demo.auth.TokenUserInfo;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j

@@ -1,15 +1,10 @@
 package com.example.demo.shareapi.service;
 
-import ch.qos.logback.core.util.FileUtil;
 import com.example.demo.auth.TokenUserInfo;
-import com.example.demo.boardapi.repository.BoardRepository;
-import com.example.demo.shareapi.config.AwsConfig;
-import com.example.demo.shareapi.dto.request.ApprovalDateDTO;
-
+import com.example.demo.shareapi.dto.request.ShareRequestDTO;
 import com.example.demo.shareapi.dto.request.ShareUpdateRequestDTO;
 import com.example.demo.shareapi.dto.response.ShareCommentResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareDetailResponseDTO;
-import com.example.demo.shareapi.dto.request.ShareRequestDTO;
 import com.example.demo.shareapi.dto.response.ShareResponseDTO;
 import com.example.demo.shareapi.dto.response.ShareSetApprovalResponseDTO;
 import com.example.demo.shareapi.entity.ApprovalStatus;
@@ -24,27 +19,21 @@ import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.core.ResponseInputStream;
 
-import software.amazon.awssdk.services.s3.model.*;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.BufferedInputStream;
-import java.net.URLDecoder;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -83,6 +72,7 @@ public class ShareService {
                                         .commentCount(countedComment)
                                         .content(board.getContent())
                                         .approvalDate(board.getApprovalDate())
+                                        .approvalFlag(board.getApprovalFlag())
                                         .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
                                         .build();
             dtoList.add(dto);
@@ -297,6 +287,55 @@ public class ShareService {
                     .userId(shareComment.getUser().getId())
                     .boardId(shareComment.getShare().getShareId())
                     .userName(userRepository.findById(shareComment.getUser().getId()).map(User::getUserName).orElse(null))
+                    .build();
+            shareCommentResponseDTOList.add(shareCommentResponseDTO);
+        }
+
+
+        ShareDetailResponseDTO dto = ShareDetailResponseDTO.builder()
+                .id(share.getShareId())
+                .title(share.getTitle())
+                .content(share.getContent())
+                .uploadImages(
+                        imagesList // 각 이미지들은 filePath 가짐
+
+                )
+                // Images 엔티티의 파일저장경로(스트링) 리스트 괄호안에 넣기
+                .regDate(share.getRegDate())
+                .approvalDate(share.getApprovalDate())
+                .comments(shareCommentResponseDTOList) // 코멘트 리스트
+                .userId(share.getUser().getId())
+                .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
+                .approvalFlag(share.getApprovalFlag())
+                .build();
+
+        return dto;
+    }
+
+    public ShareDetailResponseDTO getBoardOfReject(int id) {
+        Share share = shareRepository.findByIdRejectedShares(id).orElseThrow(
+                ()-> new IllegalArgumentException("해당 id의 나눔 게시글은 없습니다.")
+        );
+        // 게시글의 이미지들 리스트
+        List<Images> imagesList = imageRepository.findAllByBoardId(id);
+//        for (Images images : imagesList){
+//            Images img = Images
+//                    .builder()
+//                    .filePath(images.getFilePath())
+//                    .build();
+//
+//        } // 이들의 경로 가진 Images 객체 생성.
+        List<ShareComment> shareCommentList = shareCommentRepository.findAllByBoardId(id);
+
+        List<ShareCommentResponseDTO> shareCommentResponseDTOList = new ArrayList<>();
+        for(ShareComment shareComment:shareCommentList){
+            ShareCommentResponseDTO shareCommentResponseDTO = ShareCommentResponseDTO.builder()
+                    .commentId(shareComment.getShareCommentId())
+                    .content(shareComment.getContent())
+                    .regDate(shareComment.getRegDate())
+                    .userId(shareComment.getUser().getId())
+                    .boardId(shareComment.getShare().getShareId())
+                    .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
                     .build();
             shareCommentResponseDTOList.add(shareCommentResponseDTO);
         }

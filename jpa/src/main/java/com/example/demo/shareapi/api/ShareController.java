@@ -1,8 +1,6 @@
 package com.example.demo.shareapi.api;
 
 import com.example.demo.auth.TokenUserInfo;
-import com.example.demo.shareapi.dto.request.ApprovalDateDTO;
-
 import com.example.demo.shareapi.dto.request.ShareCommentRequestDTO;
 import com.example.demo.shareapi.dto.request.ShareRequestDTO;
 import com.example.demo.shareapi.dto.request.ShareUpdateRequestDTO;
@@ -74,6 +72,14 @@ public class ShareController {
                                                    @PathVariable("board_id") int id){
         log.info("/donation/approval/{} GET - ADMIN의 share board Detail Request", id);
         ShareDetailResponseDTO responseDTO = shareService.getBoardOfAdmin(id);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/approval/reject/{board_id}")
+    public ResponseEntity<?> getRejectBoardDetail(@AuthenticationPrincipal TokenUserInfo userInfo,
+                                                   @PathVariable("board_id") int id){
+        log.info("/donation/approval/{} GET - ADMIN의 share board Detail Request", id);
+        ShareDetailResponseDTO responseDTO = shareService.getBoardOfReject(id);
         return ResponseEntity.ok().body(responseDTO);
     }
 

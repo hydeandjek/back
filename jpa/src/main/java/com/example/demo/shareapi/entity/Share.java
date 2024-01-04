@@ -1,12 +1,10 @@
 package com.example.demo.shareapi.entity;
 
 import com.example.demo.userapi.entity.User;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -51,7 +49,7 @@ public class Share {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime regDate;
 
-//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    //    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String approvalDate; // 승인 또는 거부 날짜
 
     @UpdateTimestamp
@@ -61,7 +59,7 @@ public class Share {
     @JoinColumn(name = "user_id")
     private User user;
 
-//    @Column(nullable = false)
+    //    @Column(nullable = false)
 //    private boolean approvalFlag; // 승인여부 (프론트에서 유즈스테이트 디폴트 설정)
     @Enumerated(EnumType.STRING) // enum 타입으로 매핑
     @Column(nullable = false)
