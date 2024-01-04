@@ -204,7 +204,7 @@ public class RecipeService {
                     throw new RuntimeException("이미 해당 회원의 찜 데이터가 존재!!!!!");
                 }
             }
-            Like saved = likeRepository.save(Like.builder().recipeName(likeRequestDTO.getRecipeName()).user(user).build());
+            Like saved = likeRepository.save(Like.builder().recipeImg(likeRequestDTO.getRecipeImg()).recipeName(likeRequestDTO.getRecipeName()).user(user).build());
             log.info("table saved!!!: {}", saved);
         }
         if(!allByUser.isEmpty()){ // 해당 회원의 찜 목록 데이터가 1개 이상 존재한다면
