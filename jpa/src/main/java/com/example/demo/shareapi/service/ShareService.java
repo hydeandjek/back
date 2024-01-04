@@ -296,7 +296,7 @@ public class ShareService {
                     .regDate(shareComment.getRegDate())
                     .userId(shareComment.getUser().getId())
                     .boardId(shareComment.getShare().getShareId())
-                    .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
+                    .userName(userRepository.findById(shareComment.getUser().getId()).map(User::getUserName).orElse(null))
                     .build();
             shareCommentResponseDTOList.add(shareCommentResponseDTO);
         }
