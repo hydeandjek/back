@@ -8,6 +8,7 @@ import com.example.demo.chatapi.entity.ChatMessage;
 import com.example.demo.chatapi.entity.Room;
 import com.example.demo.chatapi.exception.ChatMessageListResetException;
 import com.example.demo.chatapi.repository.RoomRepository;
+import com.example.demo.chatapi.util.SHA256;
 import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +82,7 @@ public class RoomService {
         return messageList.stream()
                 .map(chat -> ChatMessageListDTO.builder()
                         .userName(chat.getUserName())
-                        .userId(chat.getUserId())
+                        .userId(SHA256.encrypt(chat.getUserId()))
                         .message(chat.getMessage())
                         .date(chat.getDateToString())
                         .build())
