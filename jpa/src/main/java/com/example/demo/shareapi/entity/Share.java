@@ -1,6 +1,7 @@
 package com.example.demo.shareapi.entity;
 
 import com.example.demo.userapi.entity.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +47,7 @@ public class Share {
 //    private List<MultipartFile> uploadImages;
 
     @CreationTimestamp
+//    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy/MM/dd HH:mm", timezone="Asia/Seoul") //날짜 포멧 바꾸기
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime regDate;
 
@@ -89,6 +92,12 @@ public class Share {
     public void updateShare(String title, String content){
         this.title = title;
         this.content = content;
+    }
+    public String datePicker(String s){
+        LocalDateTime currentDate = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return currentDate.format(formatter);
+//        share.setApprovalDate(formattedDate);
     }
 
 

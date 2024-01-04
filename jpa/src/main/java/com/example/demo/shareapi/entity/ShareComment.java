@@ -28,6 +28,7 @@ public class ShareComment {
     private String content;
 
     @CreationTimestamp
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime regDate;
 
     @UpdateTimestamp
