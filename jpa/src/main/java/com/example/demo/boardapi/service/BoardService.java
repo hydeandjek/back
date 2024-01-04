@@ -95,7 +95,7 @@ public class BoardService {
                     .title(board.getTitle())
                     .category(board.getCategory())
                     .regDate(board.getRegDate())
-                    .userId(board.getUser().getId())
+                    .userId(SHA256.encrypt(board.getUser().getId()))
                     .userName(board.getUser().getUserName())
                     .rowNum(count--)
                     .build();

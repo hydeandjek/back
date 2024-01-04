@@ -26,10 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.example.demo.recipeapi.entity.QLike.like;
 
@@ -204,7 +201,7 @@ public class RecipeService {
                     throw new RuntimeException("이미 해당 회원의 찜 데이터가 존재!!!!!");
                 }
             }
-            Like saved = likeRepository.save(Like.builder().recipeName(likeRequestDTO.getRecipeName()).user(user).build());
+            Like saved = likeRepository.save(Like.builder().recipeImg(likeRequestDTO.getRecipeImg()).recipeName(likeRequestDTO.getRecipeName()).user(user).build());
             log.info("table saved!!!: {}", saved);
         }
         if(!allByUser.isEmpty()){ // 해당 회원의 찜 목록 데이터가 1개 이상 존재한다면
@@ -242,19 +239,21 @@ public class RecipeService {
 //        throw new InterruptedException("이것을 봤다면 무언가가 잘못된 것이다."); // 502
     }
 
-    public List<String> getLikeLists(final String userId) {
+    public List<Map<String, String>> getLikeLists(final String userId) {
 
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("회원 정보가 없습니다.")
         );
 
         List<Like> allByUser = likeRepository.findAllByUser(user); // 회원이 찜한 것들
-        List<String> likedRecipeNames = new ArrayList<>();
+        List<Map<String, String>> likedRecipeNames = new LinkedList<>();
 
 
         for (Like like1 : allByUser) {
-            String recipeName = like1.getRecipeName();
-            likedRecipeNames.add(recipeName);
+            Map<String, String> likedRecipeName = new HashMap<>();
+            likedRecipeName.put("recipeName", like1.getRecipeName());
+            likedRecipeName.put("recipeImg", like1.getRecipeImg());
+            likedRecipeNames.add(likedRecipeName);
         }
 
         return likedRecipeNames;
