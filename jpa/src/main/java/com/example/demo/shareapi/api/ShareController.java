@@ -60,6 +60,14 @@ public class ShareController {
         return ResponseEntity.ok().body(boardList);
     }
 
+    // 관지라가 확인한 보류 게시물 목록 조회 요청
+    @GetMapping("/reject")
+    public ResponseEntity<?> getRejectBoardList(@AuthenticationPrincipal TokenUserInfo userInfo) {
+        List<ShareResponseDTO> boardList = shareService.getRejectBoardList();
+
+        return ResponseEntity.ok().body(boardList);
+    }
+
     // 승인할 게시글 상세보기 요청 처리
     @GetMapping("/approval/{board_id}")
     public ResponseEntity<?> getNotYetApproveBoard(@AuthenticationPrincipal TokenUserInfo userInfo,
@@ -302,4 +310,10 @@ public class ShareController {
         return ResponseEntity.ok().body(boardList);
     }
 
+    @GetMapping("/all/mypage")
+    public ResponseEntity<?> getMyboardListAll(@AuthenticationPrincipal TokenUserInfo userInfo) {
+        List<ShareResponseDTO> boardList = shareService.getMyboardListAll(userInfo);
+
+        return ResponseEntity.ok().body(boardList);
+    }
 }

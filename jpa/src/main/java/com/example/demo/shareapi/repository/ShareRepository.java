@@ -62,4 +62,10 @@ public interface ShareRepository extends JpaRepository<Share, Integer> {
 
     @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'HOLD' AND s.user = :user ")
     List<Share> findMyboardHold(@Param("user") User user);
+
+    @Query("SELECT s FROM Share s WHERE s.user = :user ")
+    List<Share> findAllMyboard(@Param("user") User user);
+
+    @Query("SELECT s FROM Share s WHERE s.approvalFlag = 'REJECT' ")
+    List<Share> findAllRejectBoardList();
 }

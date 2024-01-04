@@ -1,6 +1,7 @@
 package com.example.demo.shareapi.dto.response;
 
 import com.example.demo.shareapi.entity.ApprovalStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -21,7 +22,7 @@ public class ShareSetApprovalResponseDTO {
 
 //    private String category; // 카테고리 받아온거 넣기
 
-    @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm")
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm")
     private LocalDateTime regDate;
 
     private String userId;
@@ -29,6 +30,7 @@ public class ShareSetApprovalResponseDTO {
     private List<String> imageUrl;
 //    private List<Images> uploadImages;
 
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm")
     private String approvalDate;
 
     private ApprovalStatus approvalFlag;

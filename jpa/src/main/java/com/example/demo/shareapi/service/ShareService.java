@@ -536,6 +536,33 @@ public class ShareService {
     }
 
 
+    public List<ShareResponseDTO> getMyboardListAll(TokenUserInfo userInfo) {
+        List<Share> boardList = shareRepository.findAllMyboard(getUser(userInfo.getUserId()));
+
+        List<ShareResponseDTO> dtoList = new ArrayList<>();
+        for (Share board : boardList) {
+            List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
+            String filePath = imagesList.get(0).getFilePath();
+
+            int countedComment = shareCommentRepository.countByBoard(board.getShareId());
+
+            ShareResponseDTO dto = ShareResponseDTO.builder()
+                    .id(board.getShareId())
+                    .title(board.getTitle())
+                    .regDate(board.getRegDate())
+                    .userId(board.getUser().getId())
+                    .imageUrl(filePath)
+                    .commentCount(countedComment)
+                    .content(board.getContent())
+                    .approvalDate(board.getApprovalDate())
+                    .approvalFlag(board.getApprovalFlag())
+                    .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
+                    .build();
+            dtoList.add(dto);
+        }
+        return dtoList;
+    }
+
     public List<ShareResponseDTO> getMyboardList(TokenUserInfo userInfo, ApprovalStatus approvalStatus) {
         if (approvalStatus == ApprovalStatus.APPROVE) {
             List<Share> boardList = shareRepository.findMyboardApprove(getUser(userInfo.getUserId()));
@@ -556,6 +583,7 @@ public class ShareService {
                         .commentCount(countedComment)
                         .content(board.getContent())
                         .approvalDate(board.getApprovalDate())
+                        .approvalFlag(board.getApprovalFlag())
                         .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
                         .build();
                 dtoList.add(dto);
@@ -580,6 +608,7 @@ public class ShareService {
                         .commentCount(countedComment)
                         .content(board.getContent())
                         .approvalDate(board.getApprovalDate())
+                        .approvalFlag(board.getApprovalFlag())
                         .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
                         .build();
                 dtoList.add(dto);
@@ -603,12 +632,42 @@ public class ShareService {
                         .imageUrl(filePath)
                         .commentCount(countedComment)
                         .content(board.getContent())
+                        .approvalFlag(board.getApprovalFlag())
                         .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
                         .build();
                 dtoList.add(dto);
             }
             return dtoList;
         }
+    }
+
+    public List<ShareResponseDTO> getRejectBoardList() {
+        List<Share> RejectedShares = shareRepository.findAllRejectBoardList();
+
+        List<ShareResponseDTO> dtoList = new ArrayList<>();
+        for (Share board : RejectedShares) {
+            List<Images> imagesList = imageRepository.findAllByBoardId(board.getShareId());
+            String filePath = null;
+            if(!imagesList.isEmpty()){
+                filePath = imagesList.get(0).getFilePath(); //게시글id에 따른 첫번째 이미지의 경로
+            }
+
+            int countedComment = shareCommentRepository.countByBoard(board.getShareId());
+
+            ShareResponseDTO dto = ShareResponseDTO.builder()
+                    .id(board.getShareId())
+                    .title(board.getTitle())
+                    .regDate(board.getRegDate())
+                    .approvalDate(null)
+                    .userId(board.getUser().getId())
+                    .imageUrl(filePath)
+                    .commentCount(countedComment)
+                    .content(board.getContent())
+                    .userName(userRepository.findById(board.getUser().getId()).map(User::getUserName).orElse(null))
+                    .build();
+            dtoList.add(dto);
+        }
+        return dtoList;
     }
 }
 
