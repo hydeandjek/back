@@ -47,9 +47,8 @@ public class Share {
 //    private List<MultipartFile> uploadImages;
 
     @CreationTimestamp
-    @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm")
-    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy/MM/dd HH:mm", timezone="Asia/Seoul") //날짜 포멧 바꾸기
-//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm SS")
+//    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy/MM/dd HH:mm", timezone="Asia/Seoul") //날짜 포멧 바꾸기
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime regDate;
 
 //    @DateTimeFormat(pattern = "yyyy-MM-dd")
