@@ -312,6 +312,55 @@ public class ShareService {
         return dto;
     }
 
+    public ShareDetailResponseDTO getBoardOfReject(int id) {
+        Share share = shareRepository.findByIdRejectedShares(id).orElseThrow(
+                ()-> new IllegalArgumentException("해당 id의 나눔 게시글은 없습니다.")
+        );
+        // 게시글의 이미지들 리스트
+        List<Images> imagesList = imageRepository.findAllByBoardId(id);
+//        for (Images images : imagesList){
+//            Images img = Images
+//                    .builder()
+//                    .filePath(images.getFilePath())
+//                    .build();
+//
+//        } // 이들의 경로 가진 Images 객체 생성.
+        List<ShareComment> shareCommentList = shareCommentRepository.findAllByBoardId(id);
+
+        List<ShareCommentResponseDTO> shareCommentResponseDTOList = new ArrayList<>();
+        for(ShareComment shareComment:shareCommentList){
+            ShareCommentResponseDTO shareCommentResponseDTO = ShareCommentResponseDTO.builder()
+                    .commentId(shareComment.getShareCommentId())
+                    .content(shareComment.getContent())
+                    .regDate(shareComment.getRegDate())
+                    .userId(shareComment.getUser().getId())
+                    .boardId(shareComment.getShare().getShareId())
+                    .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
+                    .build();
+            shareCommentResponseDTOList.add(shareCommentResponseDTO);
+        }
+
+
+        ShareDetailResponseDTO dto = ShareDetailResponseDTO.builder()
+                .id(share.getShareId())
+                .title(share.getTitle())
+                .content(share.getContent())
+                .uploadImages(
+                        imagesList // 각 이미지들은 filePath 가짐
+
+                )
+                // Images 엔티티의 파일저장경로(스트링) 리스트 괄호안에 넣기
+                .regDate(share.getRegDate())
+                .approvalDate(share.getApprovalDate())
+                .comments(shareCommentResponseDTOList) // 코멘트 리스트
+                .userId(share.getUser().getId())
+                .userName(userRepository.findById(share.getUser().getId()).map(User::getUserName).orElse(null))
+                .approvalFlag(share.getApprovalFlag())
+                .build();
+
+        return dto;
+    }
+
     /* 1. 파일 업로드 */
 /*    public String upload(MultipartFile multipartFile, String s3FileName) throws IOException {
         // 메타데이터 생성

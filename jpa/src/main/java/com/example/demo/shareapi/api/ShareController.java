@@ -75,6 +75,14 @@ public class ShareController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    @GetMapping("/approval/reject/{board_id}")
+    public ResponseEntity<?> getRejectBoardDetail(@AuthenticationPrincipal TokenUserInfo userInfo,
+                                                   @PathVariable("board_id") int id){
+        log.info("/donation/approval/{} GET - ADMIN의 share board Detail Request", id);
+        ShareDetailResponseDTO responseDTO = shareService.getBoardOfReject(id);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
     // 승인 요청 처리 : 승인된 날짜 넣고 해당 글 리턴
     @PostMapping("/approval/complete/{share_id}/{flag}")
     public  ResponseEntity<?> approve(

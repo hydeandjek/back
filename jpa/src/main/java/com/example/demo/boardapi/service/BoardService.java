@@ -8,11 +8,7 @@ import com.example.demo.boardapi.dto.MyPostResponseDTO;
 import com.example.demo.boardapi.entity.Board;
 import com.example.demo.boardapi.repository.BoardRepository;
 import com.example.demo.chatapi.util.SHA256;
-
-import com.example.demo.qnaapi.entity.QuestionBoard;
 import com.example.demo.qnaapi.repository.QnaBoardRepository;
-import com.example.demo.shareapi.dto.response.ShareResponseDTO;
-import com.example.demo.shareapi.entity.Share;
 import com.example.demo.shareapi.repository.ShareRepository;
 import com.example.demo.userapi.entity.User;
 import com.example.demo.userapi.repository.UserRepository;
